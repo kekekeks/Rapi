@@ -55,7 +55,12 @@ namespace RapiAgent
                 var reader = stderr ? StderrReader : StdoutReader;
                 var ms = stderr ? Stderr : Stdout;
                 if (Process.ExitCode.IsCompleted)
+                {
+                    if (reader == null)
+                        return null;
                     await reader;
+                }
+
                 lock (ms)
                     return ms.ToArray();
             }
@@ -101,9 +106,14 @@ namespace RapiAgent
 
         public Task WriteStdIn(string id, byte[] data)
         {
+            async Task DoWrite(Stream s)
+            {
+                await s.WriteAsync(data, 0, data.Length);
+                await s.FlushAsync();
+            }
             lock (_processes)
                 if (_processes.TryGetValue(id, out var proc))
-                    return proc.Process.StdIn.WriteAsync(data, 0, data.Length);
+                    return DoWrite(proc.Process.StdIn);
             throw new KeyNotFoundException();
         }
 

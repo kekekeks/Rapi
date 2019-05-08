@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using CoreRPC;
 using CoreRPC.AspNetCore;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Rapi;
 
 namespace RapiAgent
 {
@@ -29,7 +31,11 @@ namespace RapiAgent
                 new DefaultMethodBinder()).CreateRequestHandler(new DictionaryTargetSelector
             {
                 ["FileSystem"] = new FileSystemRpc(),
-                ["Processes"] = new ProcessRpc(new UnixProcessFactory())
+                ["Processes"] = new ProcessRpc(
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                        ? (IProcessFactory) new Win32ProcessFactory()
+                        : new UnixProcessFactory()),
+                ["SystemInfo"] = new SystemInfoRpc()
             }));
         }
     }

@@ -1,12 +1,12 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Rapi;
 
 namespace RapiAgent
 {
-
-
     public class FileSystemRpc : IRapiFileSystemRpc
     {
         public Task<bool> FileExists(string file)
@@ -30,6 +30,15 @@ namespace RapiAgent
             foreach(var f in Directory.GetFiles(s))
                 rv.Add(f);
             return Task.FromResult(rv);
+        }
+
+        public Task<RapiFileSystemInfo> GetFileSystemInfo()
+        {
+            return Task.FromResult(new RapiFileSystemInfo
+            {
+                TempDirectory = Path.GetTempPath(),
+                Drives = Directory.GetLogicalDrives().ToList()
+            });
         }
     }
 }
