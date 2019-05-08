@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="CoreRPC" Version="0.4.4" />
       <ProjectReference Include="..\Rapi\Rapi.csproj" />
     </ItemGroup>
 
