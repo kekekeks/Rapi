@@ -14,6 +14,11 @@ namespace RapiAgent
             return Task.FromResult(File.Exists(file));
         }
 
+        public Task<bool> DirectoryExists(string file)
+        {
+            return Task.FromResult(Directory.Exists(file));
+        }
+
         public Task<byte[]> ReadFileContents(string file)
         {
             return File.ReadAllBytesAsync(file);
@@ -30,6 +35,20 @@ namespace RapiAgent
             foreach(var f in Directory.GetFiles(s))
                 rv.Add(f);
             return Task.FromResult(rv);
+        }
+
+        public Task<List<string>> GetDirectories(string path)
+        {
+            var rv = new List<string>();
+            foreach(var f in Directory.GetDirectories(path))
+                rv.Add(f);
+            return Task.FromResult(rv);
+        }
+
+        public Task CreateDirectory(string path)
+        {
+            Directory.CreateDirectory(path);
+            return Task.CompletedTask;
         }
 
         public Task<RapiFileSystemInfo> GetFileSystemInfo()
