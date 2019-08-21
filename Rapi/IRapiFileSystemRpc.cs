@@ -11,11 +11,10 @@ namespace Rapi
         Task WriteFileContents(string file, byte[] data);
         Task<List<string>> GetFiles(string path);
         Task<List<string>> GetDirectories(string path);
-        Task CreateDirectory(string path);
-        
+        Task CreateDirectory(string path); 
         Task<RapiFileSystemInfo> GetFileSystemInfo();
     }
-
+    
     public class RapiFileSystemInfo
     {
         public string TempDirectory { get; set; }

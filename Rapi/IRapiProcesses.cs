@@ -21,10 +21,7 @@ namespace Rapi
         public string[] Arguments { get; set; }
         public bool MergeStderr { get; set; }
 
-        public ProcessCreationOptions()
-        {
-            
-        }
+        public ProcessCreationOptions() { }
 
         public ProcessCreationOptions(string path, string[] arguments)
         {

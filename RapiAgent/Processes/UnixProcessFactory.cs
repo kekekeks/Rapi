@@ -1,18 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
-using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Microsoft.Win32.SafeHandles;
 using Rapi;
 
-namespace RapiAgent
+namespace RapiAgent.Processes
 {
-    class UnixProcessFactory : IProcessFactory
+    internal class UnixProcessFactory : IProcessFactory
     {
         private const string PythonScript = @"
 import os;

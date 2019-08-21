@@ -1,9 +1,9 @@
 using System;
 using System.IO;
 
-namespace RapiAgent
+namespace RapiAgent.Processes
 {
-    class UnixPtyStreamBase : Stream
+    internal class UnixPtyStreamBase : Stream
     {
         protected int Fd { get; private set; }
 
@@ -12,10 +12,7 @@ namespace RapiAgent
             Fd = fd;
         }
 
-        public override void Flush()
-        {
-
-        }
+        public override void Flush() { }
 
         public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
 
@@ -45,7 +42,7 @@ namespace RapiAgent
         }
     }
 
-    class UnixPtyReadStream :  UnixPtyStreamBase
+    internal class UnixPtyReadStream : UnixPtyStreamBase
     {
         public override unsafe int Read(byte[] buffer, int offset, int count)
         {
@@ -61,10 +58,10 @@ namespace RapiAgent
 
     }
 
-    
-    class UnixPtyWriteStream :  UnixPtyStreamBase
+    internal class UnixPtyWriteStream : UnixPtyStreamBase
     {
-        object _lock = new object();
+        private readonly object _lock = new object();
+        
         public UnixPtyWriteStream(int fd) : base(fd)
         {
         }
@@ -87,6 +84,5 @@ namespace RapiAgent
                 base.Close();
             }
         }
-
     }
 }

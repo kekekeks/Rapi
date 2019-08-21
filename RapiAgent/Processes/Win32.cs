@@ -1,13 +1,14 @@
 using System;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
+
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Global
 // ReSharper disable IdentifierTypo
 // ReSharper disable FieldCanBeMadeReadOnly.Global
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace RapiAgent
+namespace RapiAgent.Processes
 {
     public unsafe class Win32
     {

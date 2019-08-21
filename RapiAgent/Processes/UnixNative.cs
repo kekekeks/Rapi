@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace RapiAgent
+namespace RapiAgent.Processes
 {
     internal class UnixNativeDelegates
     {
@@ -189,7 +189,5 @@ namespace RapiAgent
             Marshal.StructureToPtr(obj, ptr, false);
             return ptr;
         }
-
-
     }
 }

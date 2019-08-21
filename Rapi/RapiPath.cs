@@ -1,12 +1,12 @@
 using System;
-using System.IO;
 using System.Text;
 
 namespace Rapi
 {
     public class RapiPath
     {
-        private bool _isUnix;
+        private readonly bool _isUnix;
+        
         public char[] InvalidFileNameChars { get; }
         public char[] InvalidPathChars { get; }
         public char DirectorySeparatorChar { get; }
@@ -16,14 +16,14 @@ namespace Rapi
         {
             if (platformInfo.IsUnix)
             {
-                InvalidFileNameChars = new char[] {'\0', '/'};
-                InvalidPathChars = new char[] {'\0'};
+                InvalidFileNameChars = new[] {'\0', '/'};
+                InvalidPathChars = new[] {'\0'};
                 DirectorySeparatorChar = AltDirectorySeparatorChar = '/';
                 _isUnix = true;
             }
             else
             {
-                InvalidFileNameChars = new char[]
+                InvalidFileNameChars = new[]
                 {
                     '\"', '<', '>', '|', '\0',
                     (char) 1, (char) 2, (char) 3, (char) 4, (char) 5, (char) 6, (char) 7, (char) 8, (char) 9, (char) 10,
@@ -33,7 +33,7 @@ namespace Rapi
                     (char) 30,
                     (char) 31, ':', '*', '?', '\\', '/'
                 };
-                InvalidPathChars = new char[]
+                InvalidPathChars = new[]
                 {
                     '|', '\0',
                     (char)1, (char)2, (char)3, (char)4, (char)5, (char)6, (char)7, (char)8, (char)9, (char)10,
@@ -45,18 +45,14 @@ namespace Rapi
                 AltDirectorySeparatorChar = '/';
             }
         }
-
-        bool IsDirectorySeparator(char ch) => ch == DirectorySeparatorChar || ch == AltDirectorySeparatorChar;
-
-        static bool IsLatin(char ch) => (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'); 
         
         public bool IsPathRooted(string path)
         {
             if (_isUnix)
                 return path.Length > 0 && path[0] == DirectorySeparatorChar;
             int length = path.Length;
-            return (length >= 1 && IsDirectorySeparator(path[0]))
-                   || (length >= 2 && IsLatin(path[0]) && path[1] == ':');
+            return length >= 1 && IsDirectorySeparator(path[0]) || 
+                   length >= 2 && IsLatin(path[0]) && path[1] == ':';
         }
         
         public string Combine(params string[] paths)
@@ -70,7 +66,7 @@ namespace Rapi
             int firstComponent = 0;
 
             // We have two passes, the first calculates how large a buffer to allocate and does some precondition
-            // checks on the paths passed in.  The second actually does the combination.
+            // checks on the paths passed in. The second actually does the combination.
 
             for (int i = 0; i < paths.Length; i++)
             {
@@ -126,6 +122,10 @@ namespace Rapi
             }
 
             return builder.ToString();
-}
+        }
+        
+        private bool IsDirectorySeparator(char ch) => ch == DirectorySeparatorChar || ch == AltDirectorySeparatorChar;
+
+        private static bool IsLatin(char ch) => (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'); 
     }
 }

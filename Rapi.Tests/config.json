@@ -1,0 +1,7 @@
+{
+  "Sftp": {
+    "Login": "login",
+    "Password": "password",
+    "Host": "localhost"
+  }
+}

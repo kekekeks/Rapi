@@ -4,7 +4,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RapiAgent", "RapiAgent\Rapi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rapi", "Rapi\Rapi.csproj", "{9EC55177-33C0-4D72-8B63-B637336F7A4A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "Sandbox\Sandbox.csproj", "{1C640F1C-9ECD-482B-A263-305835A2B051}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rapi.Sandbox", "Rapi.Sandbox\Rapi.Sandbox.csproj", "{1C640F1C-9ECD-482B-A263-305835A2B051}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rapi.Tests", "Rapi.Tests\Rapi.Tests.csproj", "{36547A4C-7C8C-44A6-9311-E387A9250E32}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +26,9 @@ Global
 		{1C640F1C-9ECD-482B-A263-305835A2B051}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C640F1C-9ECD-482B-A263-305835A2B051}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1C640F1C-9ECD-482B-A263-305835A2B051}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36547A4C-7C8C-44A6-9311-E387A9250E32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36547A4C-7C8C-44A6-9311-E387A9250E32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36547A4C-7C8C-44A6-9311-E387A9250E32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36547A4C-7C8C-44A6-9311-E387A9250E32}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

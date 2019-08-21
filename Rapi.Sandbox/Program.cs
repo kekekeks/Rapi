@@ -1,29 +1,21 @@
 ﻿using System;
 using System.Text;
 using System.Threading.Tasks;
-using CoreRPC.Binding.Default;
-using CoreRPC.Routing;
-using CoreRPC.Serialization;
 using CoreRPC.Transport.Http;
 using Newtonsoft.Json;
-using Rapi;
 
-namespace Sandbox
+namespace Rapi.Sandbox
 {
-    class Program
-    {       
-        static async Task Main(string[] args)
+    public static class Program
+    {
+        public static async Task Main(string[] args)
         {
-
             var conn = await RapiConnection.Connect(new HttpClientTransport(args[0]));
-            
-            
             Console.WriteLine(JsonConvert.SerializeObject(conn.SystemInfo));
-            Console.WriteLine(JsonConvert.SerializeObject(await conn.FileSystem.GetFileSystemInfo()));
+            Console.WriteLine(JsonConvert.SerializeObject(await conn.FileSystem.GetFileSystemInfo())); 
             
-            foreach(var f in await conn.FileSystem.GetFiles(conn.FileSystemInfo.TempDirectory))
-                Console.WriteLine(f);
-
+            foreach (var file in await conn.FileSystem.GetFiles(conn.FileSystemInfo.TempDirectory))
+                Console.WriteLine(file);
 
             var tempFilePath = conn.Path.Combine(conn.FileSystemInfo.TempDirectory, "rapitest.txt");
             await conn.FileSystem.WriteFileContents(tempFilePath, Encoding.UTF8.GetBytes("Hello world!"));
@@ -69,12 +61,11 @@ namespace Sandbox
                 await WaitForExit();
             }
 
-            Console.WriteLine($"====================\nTesting the process kill feature\n====================");
+            Console.WriteLine("====================\nTesting the process kill feature\n====================");
             await conn.Processes.Start("test", new ProcessCreationOptions(shell, shellArgs));
             await Task.Delay(1000);
             await conn.Processes.Kill("test");
             await WaitForExit();
-
         }
     }
 }

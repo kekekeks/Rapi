@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using Rapi;
 
-namespace Rapi
+namespace RapiAgent.Processes
 {
     interface IProcess
     {
@@ -15,8 +13,6 @@ namespace Rapi
         void Kill();
         Task<int> ExitCode { get; }
     }
-
-    
 
     interface IProcessFactory
     {

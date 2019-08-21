@@ -1,11 +1,10 @@
-using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Rapi;
 
-namespace RapiAgent
+namespace RapiAgent.Rpc
 {
-    public class SystemInfoRpc : IRapiSystemInfoRpc
+    internal class RapiSystemInfoRpc : IRapiSystemInfoRpc
     {
         public Task<RapiSystemInfo> GetSystemInfo()
         {

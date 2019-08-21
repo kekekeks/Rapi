@@ -4,13 +4,14 @@
         <TargetFramework>netcoreapp2.2</TargetFramework>
         <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	<AspNetCoreModuleName>AspNetCoreModuleV2</AspNetCoreModuleName>
+        <AspNetCoreModuleName>AspNetCoreModuleV2</AspNetCoreModuleName>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="CoreRPC.AspNetCore" Version="0.4.4" />
         <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.4" />
         <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="2.2.0" />
+        <PackageReference Include="SSH.NET" Version="2016.1.0" />
 
     </ItemGroup>
 
