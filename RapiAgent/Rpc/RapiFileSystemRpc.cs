@@ -34,6 +34,16 @@ namespace RapiAgent.Rpc
             return Task.CompletedTask;
         }
 
+        public Task CleanDirectory(string path)
+        {
+            var directory = new DirectoryInfo(path);
+            foreach (var file in directory.GetFiles()) 
+                file.Delete();
+            foreach (var dir in directory.GetDirectories()) 
+                dir.Delete(true);
+            return Task.CompletedTask;
+        }
+
         public Task<RapiFileSystemInfo> GetFileSystemInfo()
         {
             return Task.FromResult(new RapiFileSystemInfo

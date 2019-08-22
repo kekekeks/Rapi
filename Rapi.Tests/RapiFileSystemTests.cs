@@ -67,6 +67,29 @@ namespace Rapi.Tests
             Assert.Equal(fileContents, actual);
         }
 
+        [Fact]
+        public async Task ShouldCleanDirectory()
+        {
+            var (connection, root) = await Connect();
+            var directory = connection.Path.Combine(root, "to_clean");
+            
+            await connection.FileSystem.CreateDirectory(directory);
+            var directoryExists = await connection.FileSystem.DirectoryExists(directory);
+            Assert.True(directoryExists);
+
+            var file = connection.Path.Combine(directory, "example");
+            await connection.FileSystem.WriteFileContents(file, Encoding.UTF8.GetBytes("42"));
+            var fileExists = await connection.FileSystem.FileExists(file);
+            Assert.True(fileExists);
+
+            var before = await connection.FileSystem.GetFiles(directory);
+            Assert.NotEqual(0, before.Count);
+            
+            await connection.FileSystem.CleanDirectory(directory);
+            var after = await connection.FileSystem.GetFiles(directory);
+            Assert.Equal(0, after.Count);
+        }
+
         private async Task<(RapiConnection Connection, string Root)> Connect()
         {
             var connection = await RapiConnection.Connect(new HttpClientTransport(_host.Address));
