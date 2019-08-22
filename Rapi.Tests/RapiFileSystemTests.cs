@@ -83,11 +83,11 @@ namespace Rapi.Tests
             Assert.True(fileExists);
 
             var before = await connection.FileSystem.GetFiles(directory);
-            Assert.NotEqual(0, before.Count);
+            Assert.NotEmpty(before);
             
             await connection.FileSystem.CleanDirectory(directory);
             var after = await connection.FileSystem.GetFiles(directory);
-            Assert.Equal(0, after.Count);
+            Assert.Empty(after);
         }
 
         private async Task<(RapiConnection Connection, string Root)> Connect()

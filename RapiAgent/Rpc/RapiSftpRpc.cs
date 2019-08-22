@@ -34,7 +34,7 @@ namespace RapiAgent.Rpc
             }
         }
 
-        public async Task Upload(string from, string to, RapiSftpCredentials credentials)
+        public Task Upload(string from, string to, RapiSftpCredentials credentials)
         {
             using (var sftp = new SftpClient(credentials.Host, credentials.Port, credentials.Login, credentials.Password))
             {
@@ -57,6 +57,7 @@ namespace RapiAgent.Rpc
                     sftp.Disconnect();
                 }
             }
+            return Task.CompletedTask;
         }
     }
 }
