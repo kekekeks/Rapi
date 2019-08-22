@@ -10,7 +10,7 @@ namespace RapiAgent.Rpc
     {
         public async Task Download(string from, string to, RapiSftpCredentials credentials)
         {
-            using (var sftp = new SftpClient(credentials.Host, credentials.Login, credentials.Password))
+            using (var sftp = new SftpClient(credentials.Host, credentials.Port, credentials.Login, credentials.Password))
             {
                 sftp.HostKeyReceived += (sender, args) => args.CanTrust = true;
                 sftp.Connect();
@@ -36,7 +36,7 @@ namespace RapiAgent.Rpc
 
         public async Task Upload(string from, string to, RapiSftpCredentials credentials)
         {
-            using (var sftp = new SftpClient(credentials.Host, credentials.Login, credentials.Password))
+            using (var sftp = new SftpClient(credentials.Host, credentials.Port, credentials.Login, credentials.Password))
             {
                 sftp.HostKeyReceived += (sender, args) => args.CanTrust = true;
                 sftp.Connect();

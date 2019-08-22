@@ -2,6 +2,7 @@
   "Sftp": {
     "Login": "login",
     "Password": "password",
-    "Host": "localhost"
+    "Host": "localhost",
+    "Port": 22
   }
 }
