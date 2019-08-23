@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using CoreRPC.Transport.Http;
@@ -127,6 +129,42 @@ namespace Rapi.Tests
             var ds = await rapi.FileSystem.GetDirectories(output);
             Assert.Equal(2, fs.Count);
             Assert.Equal(2, ds.Count);
+        }
+
+        /**
+         * This is a very special test.
+         * We need to ensure mounts will work fine on windows.
+         * We create the following file structure:
+         *
+         * should_upload_symlink_root_in/
+         * |-- file
+         * [should_upload_symlink_root_linked]/
+         * should_upload_symlink_root_out/
+         *
+         * Then, upload [should_upload_symlink_root_linked]
+         * directly into should_upload_symlink_root_out.
+         */
+        [Fact]
+        public async Task ShouldSupportUploadingRootSymlinkDirectories()
+        {
+            var (rapi, root) = await Connect();
+            var input = rapi.Path.Combine(root, "should_upload_symlink_root_in");
+
+            await rapi.FileSystem.CreateDirectory(input);
+            await rapi.FileSystem.WriteFileContents(rapi.Path.Combine(input, "file"), Encoding.UTF8.GetBytes("42"));
+
+            var linked = rapi.Path.Combine(root, "should_upload_symlink_root_linked");
+            var command = $"/c mklink /D {linked} {input}";
+            _output.WriteLine($"Executing command: {command}");
+            Process.Start(new ProcessStartInfo("cmd.exe", command));
+
+            var output = rapi.Path.Combine(root, "should_upload_symlink_root_out");
+            await rapi.FileSystem.CreateDirectory(output);
+            await rapi.Sftp.Upload(linked, output, _host.Configuration.Sftp);
+
+            var outFile = rapi.Path.Combine(output, "file");
+            Assert.True(await rapi.FileSystem.FileExists(outFile));
+            Assert.Equal("42", Encoding.UTF8.GetString(await rapi.FileSystem.ReadFileContents(outFile)));
         }
 
         /**

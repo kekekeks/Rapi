@@ -1,7 +1,11 @@
+using System;
+using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 using Rapi;
+using RapiAgent.Processes;
 using Renci.SshNet;
 
 namespace RapiAgent.Rpc
@@ -10,14 +14,18 @@ namespace RapiAgent.Rpc
     {
         private static readonly RapiPath UnixPath = new RapiPath(new RapiPlatformInfo
         {
-            IsLinux = true, 
+            IsLinux = true,
             IsUnix = true
         });
-        
+
         public async Task Download(string from, string to, RapiSftpCredentials credentials)
         {
             from = GetSshNetFriendlyPath(from);
-            using (var sftp = new SftpClient(credentials.Host, credentials.Port, credentials.Login, credentials.Password))
+            using (var sftp = new SftpClient(
+                credentials.Host, 
+                credentials.Port,
+                credentials.Login,
+                credentials.Password))
             {
                 sftp.HostKeyReceived += (sender, args) => args.CanTrust = true;
                 sftp.Connect();
@@ -35,15 +43,15 @@ namespace RapiAgent.Rpc
                 }
             }
         }
-        
+
         private static async Task DownloadDirectory(SftpClient sftp, string from, string to)
         {
             var remoteFiles = sftp.ListDirectory(from);
             foreach (var remoteFile in remoteFiles)
             {
-                if (remoteFile.IsSymbolicLink || 
-                    remoteFile.Name == "."    || 
-                    remoteFile.Name == "..") 
+                if (remoteFile.IsSymbolicLink ||
+                    remoteFile.Name == "."    ||
+                    remoteFile.Name == "..")
                     continue;
 
                 if (remoteFile.IsDirectory)
@@ -73,7 +81,11 @@ namespace RapiAgent.Rpc
         public async Task Upload(string from, string to, RapiSftpCredentials credentials)
         {
             to = GetSshNetFriendlyPath(to);
-            using (var sftp = new SftpClient(credentials.Host, credentials.Port, credentials.Login, credentials.Password))
+            using (var sftp = new SftpClient(
+                credentials.Host, 
+                credentials.Port, 
+                credentials.Login, 
+                credentials.Password))
             {
                 sftp.HostKeyReceived += (sender, args) => args.CanTrust = true;
                 sftp.Connect();
@@ -93,19 +105,21 @@ namespace RapiAgent.Rpc
 
         private static async Task UploadDirectory(SftpClient sftp, string from, string to)
         {
-            foreach (var localPath in Directory.GetFiles(from))
+            foreach (var localPath in Directory.GetFileSystemEntries(from))
             {
-                var localFileName = Path.GetFileName(localPath);
-                var remoteFilePath = UnixPath.Combine(to, localFileName);
-                await UploadFile(sftp, localPath, remoteFilePath);
-            }
-            
-            foreach (var localPath in Directory.GetDirectories(from))
-            {            
-                var localDirectoryName = Path.GetFileName(localPath);
-                var remoteDirectoryPath = UnixPath.Combine(to, localDirectoryName);
-                sftp.CreateDirectory(remoteDirectoryPath);
-                await UploadDirectory(sftp, localPath, remoteDirectoryPath);
+                if (File.Exists(localPath))
+                {
+                    var localFileName = Path.GetFileName(localPath);
+                    var remoteFilePath = UnixPath.Combine(to, localFileName);
+                    await UploadFile(sftp, localPath, remoteFilePath);
+                }
+                else if (Directory.Exists(localPath))
+                {
+                    var localDirectoryName = Path.GetFileName(localPath);
+                    var remoteDirectoryPath = UnixPath.Combine(to, localDirectoryName);
+                    sftp.CreateDirectory(remoteDirectoryPath);
+                    await UploadDirectory(sftp, localPath, remoteDirectoryPath);
+                }
             }
         }
 
