@@ -154,9 +154,18 @@ namespace Rapi.Tests
             await rapi.FileSystem.WriteFileContents(rapi.Path.Combine(input, "file"), Encoding.UTF8.GetBytes("42"));
 
             var linked = rapi.Path.Combine(root, "should_upload_symlink_root_linked");
-            var command = $"/c mklink /D {linked} {input}";
-            _output.WriteLine($"Executing command: {command}");
-            Process.Start(new ProcessStartInfo("cmd.exe", command));
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                var command = $"/c mklink /D {linked} {input}";
+                _output.WriteLine($"Executing Windows command line: {command}");
+                Process.Start(new ProcessStartInfo("cmd.exe", command));
+            }
+            else
+            {
+                var command = $"-c \"ln {input} {linked} -s\"";
+                _output.WriteLine($"Executing Unix Bash: {command}");
+                Process.Start(new ProcessStartInfo("bash", command));
+            }
 
             var output = rapi.Path.Combine(root, "should_upload_symlink_root_out");
             await rapi.FileSystem.CreateDirectory(output);
