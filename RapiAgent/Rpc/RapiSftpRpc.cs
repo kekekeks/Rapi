@@ -8,6 +8,12 @@ namespace RapiAgent.Rpc
 {
     internal class RapiSftpRpc : IRapiSftpRpc
     {
+        private static readonly RapiPath UnixPath = new RapiPath(new RapiPlatformInfo
+        {
+            IsLinux = true, 
+            IsUnix = true
+        });
+        
         public async Task Download(string from, string to, RapiSftpCredentials credentials)
         {
             from = GetSshNetFriendlyPath(from);
@@ -66,19 +72,40 @@ namespace RapiAgent.Rpc
 
         public async Task Upload(string from, string to, RapiSftpCredentials credentials)
         {
+            to = GetSshNetFriendlyPath(to);
             using (var sftp = new SftpClient(credentials.Host, credentials.Port, credentials.Login, credentials.Password))
             {
                 sftp.HostKeyReceived += (sender, args) => args.CanTrust = true;
                 sftp.Connect();
                 try
                 {
-                    to = GetSshNetFriendlyPath(to);
-                    await UploadFile(sftp, from, to);
+                    if (Directory.Exists(from))
+                        await UploadDirectory(sftp, from, to);
+                    else if (File.Exists(from))
+                        await UploadFile(sftp, from, to);
                 }
                 finally
                 {
                     sftp.Disconnect();
                 }
+            }
+        }
+
+        private static async Task UploadDirectory(SftpClient sftp, string from, string to)
+        {
+            foreach (var localPath in Directory.GetFiles(from))
+            {
+                var localFileName = Path.GetFileName(localPath);
+                var remoteFilePath = UnixPath.Combine(to, localFileName);
+                await UploadFile(sftp, localPath, remoteFilePath);
+            }
+            
+            foreach (var localPath in Directory.GetDirectories(from))
+            {            
+                var localDirectoryName = Path.GetFileName(localPath);
+                var remoteDirectoryPath = UnixPath.Combine(to, localDirectoryName);
+                sftp.CreateDirectory(remoteDirectoryPath);
+                await UploadDirectory(sftp, localPath, remoteDirectoryPath);
             }
         }
 

@@ -56,63 +56,133 @@ namespace Rapi.Tests
         {
             var (rapi, root) = await Connect();
             var input = rapi.Path.Combine(root, "should_download_dir_in");
-            var sample = Encoding.UTF8.GetBytes("42");
-            
-            /**
-             * Here we build the following file tree:
-             *
-             * should_download_dir_in/
-             * |-- sample_1
-             * |   sample_2
-             * |   sample_dir/
-             * |   |-- sample_3
-             * |   +-- sample_4
-             * +-- sample_empty_dir/
-             */
-            
-            _output.WriteLine("Building file tree...");
-            await rapi.FileSystem.CreateDirectory(input);
-            await rapi.FileSystem.CreateDirectory(rapi.Path.Combine(input, "sample_dir"));
-            await rapi.FileSystem.CreateDirectory(rapi.Path.Combine(input, "sample_dir", "sample_nested_dir"));
-            await rapi.FileSystem.CreateDirectory(rapi.Path.Combine(input, "sample_empty_dir"));
-            foreach (var file in new[]
-            {
-                rapi.Path.Combine(input, "sample_1"),
-                rapi.Path.Combine(input, "sample_2"),
-                rapi.Path.Combine(input, "sample_dir", "sample_3"),
-                rapi.Path.Combine(input, "sample_dir", "sample_4"),
-                rapi.Path.Combine(input, "sample_dir", "sample_nested_dir", "sample_5")
-            })
-                await rapi.FileSystem.WriteFileContents(file, sample);
+            var output = rapi.Path.Combine(root, "should_download_dir_out");
+            var (files, directories) = await BuildComplexFileTree(rapi, input, "super secret 42");
 
             _output.WriteLine("Downloading files...");
-            var output = rapi.Path.Combine(root, "should_download_dir_out");
             await rapi.FileSystem.CreateDirectory(output);
             await rapi.Sftp.Download(input, output, _host.Configuration.Sftp);
 
-            _output.WriteLine("Asserting all files, folders and contents are correct...");
-            Assert.True(await rapi.FileSystem.DirectoryExists(rapi.Path.Combine(output, "sample_dir")));
-            Assert.True(await rapi.FileSystem.DirectoryExists(rapi.Path.Combine(output, "sample_empty_dir")));
-            foreach (var file in new[]
+            _output.WriteLine("Asserting all folders are in place...");
+            foreach (var name in directories)
             {
-                rapi.Path.Combine(output, "sample_1"),
-                rapi.Path.Combine(output, "sample_2"),
-                rapi.Path.Combine(output, "sample_dir", "sample_3"),
-                rapi.Path.Combine(output, "sample_dir", "sample_4"),
-                rapi.Path.Combine(output, "sample_dir", "sample_nested_dir", "sample_5")
-            })
+                var directory = rapi.Path.Combine(output, name);
+                var exists = await rapi.FileSystem.DirectoryExists(directory);
+                Assert.True(exists);
+            }
+            
+            _output.WriteLine("Asserting all files are in place...");
+            foreach (var name in files)
             {
-                await rapi.FileSystem.FileExists(file);
+                var file = rapi.Path.Combine(output, name);
+                var exists = await rapi.FileSystem.FileExists(file);
+                Assert.True(exists);
+                
                 var bytes = await rapi.FileSystem.ReadFileContents(file);
                 var words = Encoding.UTF8.GetString(bytes);
-                Assert.Equal("42", words);
+                Assert.Equal("super secret 42", words);
             }
             
             _output.WriteLine("Asserting file and folder count...");
-            var files = await rapi.FileSystem.GetFiles(output);
-            var directories = await rapi.FileSystem.GetDirectories(output);
-            Assert.Equal(2, files.Count);
-            Assert.Equal(2, directories.Count);
+            var fs = await rapi.FileSystem.GetFiles(output);
+            var ds = await rapi.FileSystem.GetDirectories(output);
+            Assert.Equal(2, fs.Count);
+            Assert.Equal(2, ds.Count);
+        }
+
+        [Fact]
+        private async Task ShouldUploadDirectoriesViaSftp()
+        {
+            var (rapi, root) = await Connect();
+            var input = rapi.Path.Combine(root, "should_upload_dir_in");
+            var output = rapi.Path.Combine(root, "should_upload_dir_out");
+            var (files, directories) = await BuildComplexFileTree(rapi, input, "42 super secret");
+
+            _output.WriteLine("Uploading files...");
+            await rapi.FileSystem.CreateDirectory(output);
+            await rapi.Sftp.Upload(input, output, _host.Configuration.Sftp);
+
+            _output.WriteLine("Asserting all folders are in place...");
+            foreach (var name in directories)
+            {
+                var directory = rapi.Path.Combine(output, name);
+                var exists = await rapi.FileSystem.DirectoryExists(directory);
+                Assert.True(exists);
+            }
+            
+            _output.WriteLine("Asserting all files are in place...");
+            foreach (var name in files)
+            {
+                var file = rapi.Path.Combine(output, name);
+                var exists = await rapi.FileSystem.FileExists(file);
+                Assert.True(exists);
+                
+                var bytes = await rapi.FileSystem.ReadFileContents(file);
+                var words = Encoding.UTF8.GetString(bytes);
+                Assert.Equal("42 super secret", words);
+            }
+            
+            _output.WriteLine("Asserting file and folder count...");
+            var fs = await rapi.FileSystem.GetFiles(output);
+            var ds = await rapi.FileSystem.GetDirectories(output);
+            Assert.Equal(2, fs.Count);
+            Assert.Equal(2, ds.Count);
+        }
+
+        /**
+         * Here we build the following file tree for download and upload test cases:
+         *
+         * should_download_dir_in/
+         * |-- sample_1
+         * |   sample_2
+         * |   sample_dir/
+         * |   |-- sample_nested_dir/
+         * |   |   +-- sample_5
+         * |   |   sample_3
+         * |   +-- sample_4
+         * +-- sample_empty_dir/
+         */
+        private async Task<(string[] Files, string[] Directories)> BuildComplexFileTree(
+            RapiConnection rapi, string baseDir, string fileContents)
+        {
+            _output.WriteLine("Building file tree...");
+            await rapi.FileSystem.CreateDirectory(baseDir);
+            await rapi.FileSystem.CreateDirectory(rapi.Path.Combine(baseDir, "sample_dir"));
+            await rapi.FileSystem.CreateDirectory(rapi.Path.Combine(baseDir, "sample_dir", "sample_nested_dir"));
+            await rapi.FileSystem.CreateDirectory(rapi.Path.Combine(baseDir, "sample_empty_dir"));
+            
+            var sample = Encoding.UTF8.GetBytes(fileContents);
+            var directories = new[]
+            {
+                rapi.Path.Combine("sample_dir"),
+                rapi.Path.Combine("sample_dir", "sample_nested_dir"),
+                rapi.Path.Combine("sample_empty_dir")
+            };
+            var files = new[]
+            {
+                rapi.Path.Combine("sample_1"),
+                rapi.Path.Combine("sample_2"),
+                rapi.Path.Combine("sample_dir", "sample_3"),
+                rapi.Path.Combine("sample_dir", "sample_4"),
+                rapi.Path.Combine("sample_dir", "sample_nested_dir", "sample_5")
+            };
+            
+            _output.WriteLine("Creating directories...");
+            foreach (var directory in directories)
+            {
+                var combined = rapi.Path.Combine(baseDir, directory);
+                await rapi.FileSystem.CreateDirectory(combined);
+            }
+            
+            _output.WriteLine("Writing file contents...");
+            foreach (var file in files)
+            {
+                var combined = rapi.Path.Combine(baseDir, file);
+                await rapi.FileSystem.WriteFileContents(combined, sample);
+            }
+
+            _output.WriteLine("Successfully built file tree.");
+            return (files, directories);
         }
         
         private async Task<(RapiConnection Connection, string Root)> Connect()
