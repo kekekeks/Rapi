@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -46,10 +47,14 @@ namespace RapiAgent.Rpc
 
         public Task<RapiFileSystemInfo> GetFileSystemInfo()
         {
+            var specialDirs = Enum.GetValues(typeof(Environment.SpecialFolder))
+                .Cast<Environment.SpecialFolder>().Distinct()
+                .ToDictionary(f => (int)f, Environment.GetFolderPath);
             return Task.FromResult(new RapiFileSystemInfo
             {
                 TempDirectory = Path.GetTempPath(),
-                Drives = Directory.GetLogicalDrives().ToList()
+                Drives = Directory.GetLogicalDrives().ToList(),
+                SpecialFolders = specialDirs
             });
         }
     }
