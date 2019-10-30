@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -8,15 +9,61 @@ using Xunit.Abstractions;
 
 namespace Rapi.Tests
 {
-    public class RapiSftpTests : IClassFixture<RapiTestHost>
+    public class RapiSftpTests : RapiSftpBase, IClassFixture<RapiTestHost>
+    {
+        public RapiSftpTests(RapiTestHost host, ITestOutputHelper output) : base(host, output, false)
+        {
+        }
+    }
+    
+    public class RapiSftpBackgroundTests : RapiSftpBase, IClassFixture<RapiTestHost>
+    {
+        public RapiSftpBackgroundTests(RapiTestHost host, ITestOutputHelper output) : base(host, output, true)
+        {
+        }
+    }
+
+    
+    public abstract class RapiSftpBase
     {
         private readonly ITestOutputHelper _output;
+        private readonly bool _useBackgroundApi;
         private readonly RapiTestHost _host;
 
-        public RapiSftpTests(RapiTestHost host, ITestOutputHelper output)
+        public RapiSftpBase(RapiTestHost host, ITestOutputHelper output, bool useBackgroundApi)
         {
             _output = output;
+            _useBackgroundApi = useBackgroundApi;
             _host = host;
+        }
+
+        async Task DoOperation(IRapiSftpRpc rpc, string from, string to, bool upload)
+        {
+            if (_useBackgroundApi)
+            {
+                var id = Guid.NewGuid().ToString();
+                await (upload
+                    ? rpc.StartUpload(id, from, to, _host.Configuration.Sftp)
+                    : rpc.StartDownload(id, from, to, _host.Configuration.Sftp));
+                while (true)
+                {
+                    var status = await rpc.TryGetStatus(id);
+                    if (status.IsCompleted)
+                    {
+                        if (status.Exception != null)
+                            throw new Exception(status.Exception);
+                        return;
+                    }
+
+                    await Task.Delay(100);
+                }
+            }
+            else
+            {
+                await (upload
+                    ? rpc.Upload(from, to, _host.Configuration.Sftp)
+                    : rpc.Download(from, to, _host.Configuration.Sftp));
+            }
         }
         
         [Fact]
@@ -29,7 +76,7 @@ namespace Rapi.Tests
 
             var output = connection.Path.Combine(root, "should_download_sftp_out");
             _output.WriteLine($"Downloading file from {input} to {output}");
-            await connection.Sftp.Download(input, output, _host.Configuration.Sftp);
+            await DoOperation(connection.Sftp, input, output, false);
 
             var downloaded = await connection.FileSystem.ReadFileContents(output);
             var words = Encoding.UTF8.GetString(downloaded);
@@ -46,7 +93,7 @@ namespace Rapi.Tests
 
             var output = connection.Path.Combine(root, "should_upload_sftp_out");
             _output.WriteLine($"Uploading file from {input} to {output}");
-            await connection.Sftp.Upload(input, output, _host.Configuration.Sftp);
+            await DoOperation(connection.Sftp, input, output, true);
 
             var downloaded = await connection.FileSystem.ReadFileContents(output);
             var words = Encoding.UTF8.GetString(downloaded);
@@ -63,7 +110,7 @@ namespace Rapi.Tests
 
             _output.WriteLine("Downloading files...");
             await rapi.FileSystem.CreateDirectory(output);
-            await rapi.Sftp.Download(input, output, _host.Configuration.Sftp);
+            await DoOperation(rapi.Sftp, input, output, false);
 
             _output.WriteLine("Asserting all folders are in place...");
             foreach (var name in directories)
@@ -93,7 +140,7 @@ namespace Rapi.Tests
         }
 
         [Fact]
-        private async Task ShouldUploadDirectoriesViaSftp()
+        public async Task ShouldUploadDirectoriesViaSftp()
         {
             var (rapi, root) = await Connect();
             var input = rapi.Path.Combine(root, "should_upload_dir_in");
@@ -102,7 +149,7 @@ namespace Rapi.Tests
 
             _output.WriteLine("Uploading files...");
             await rapi.FileSystem.CreateDirectory(output);
-            await rapi.Sftp.Upload(input, output, _host.Configuration.Sftp);
+            await DoOperation(rapi.Sftp, input, output, true);
 
             _output.WriteLine("Asserting all folders are in place...");
             foreach (var name in directories)
@@ -169,7 +216,7 @@ namespace Rapi.Tests
 
             var output = rapi.Path.Combine(root, "should_upload_symlink_root_out");
             await rapi.FileSystem.CreateDirectory(output);
-            await rapi.Sftp.Upload(linked, output, _host.Configuration.Sftp);
+            await DoOperation(rapi.Sftp, linked, output, true);
 
             var outFile = rapi.Path.Combine(output, "file");
             Assert.True(await rapi.FileSystem.FileExists(outFile));

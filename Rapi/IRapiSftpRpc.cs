@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 
 namespace Rapi
@@ -6,6 +7,17 @@ namespace Rapi
     {
         Task Download(string from, string to, RapiSftpCredentials credentials);
         Task Upload(string from, string to, RapiSftpCredentials credentials);
+        
+        Task StartDownload(string id, string from, string to, RapiSftpCredentials credentials);
+        Task StartUpload(string id, string from, string to, RapiSftpCredentials credentials);
+        Task<RapiSftpOperationStatusDto> TryGetStatus(string id);
+        Task Complete(string id);
+    }
+
+    public class RapiSftpOperationStatusDto
+    {
+        public bool IsCompleted { get; set; }
+        public string Exception { get; set; }
     }
 
     public class RapiSftpCredentials
