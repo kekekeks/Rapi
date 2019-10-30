@@ -206,6 +206,7 @@ namespace RapiAgent.Rpc
                 {
                     if (!op.Task.IsCompleted)
                         throw new InvalidOperationException("Operation is not completed");
+                    Operations.Remove(id);
                 }
             }
         }
