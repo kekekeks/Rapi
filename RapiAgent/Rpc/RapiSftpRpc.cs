@@ -1,13 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Rapi;
-using RapiAgent.Processes;
 using Renci.SshNet;
 
 namespace RapiAgent.Rpc
@@ -152,7 +148,7 @@ namespace RapiAgent.Rpc
                 : path;
         }
 
-        void MatchOrStart(string id, bool upload, string from, string to, string login, Func<Task> cb)
+        private static void MatchOrStart(string id, bool upload, string from, string to, string login, Func<Task> cb)
         {
             lock (Operations)
             {
@@ -174,40 +170,44 @@ namespace RapiAgent.Rpc
             }
         }
         
-        public async Task StartDownload(string id, string @from, string to, RapiSftpCredentials credentials)
+        public Task StartDownload(string id, string from, string to, RapiSftpCredentials credentials)
         {
             MatchOrStart(id, false, from, to, credentials.Login, () => Download(from, to, credentials));
+            return Task.CompletedTask;
         }
 
-        public async Task StartUpload(string id, string @from, string to, RapiSftpCredentials credentials)
+        public Task StartUpload(string id, string from, string to, RapiSftpCredentials credentials)
         {
             MatchOrStart(id, true, from, to, credentials.Login, () => Upload(from, to, credentials));
+            return Task.CompletedTask;
         }
 
-        public async Task<RapiSftpOperationStatusDto> TryGetStatus(string id)
+        public Task<RapiSftpOperationStatusDto> TryGetStatus(string id)
         {
             lock (Operations)
             {
-                if (Operations.TryGetValue(id, out var op))
-                    return new RapiSftpOperationStatusDto
-                    {
-                        IsCompleted = op.Task.IsCompleted,
-                        Exception = op.Task.Exception?.ToString()
-                    };
-                return null;
+                if (!Operations.TryGetValue(id, out var op)) 
+                    return Task.FromResult((RapiSftpOperationStatusDto)null);
+                
+                var status = new RapiSftpOperationStatusDto
+                {
+                    IsCompleted = op.Task.IsCompleted,
+                    Exception = op.Task.Exception?.ToString()
+                };
+                return Task.FromResult(status);
             }
         }
 
-        public async Task Complete(string id)
+        public Task Complete(string id)
         {
             lock (Operations)
             {
-                if (Operations.TryGetValue(id, out var op))
-                {
-                    if (!op.Task.IsCompleted)
-                        throw new InvalidOperationException("Operation is not completed");
-                    Operations.Remove(id);
-                }
+                if (!Operations.TryGetValue(id, out var op)) 
+                    return Task.CompletedTask;
+                if (!op.Task.IsCompleted)
+                    throw new InvalidOperationException("Operation is not completed");
+                Operations.Remove(id);
+                return Task.CompletedTask;
             }
         }
     }

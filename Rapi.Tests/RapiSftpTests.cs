@@ -9,61 +9,31 @@ using Xunit.Abstractions;
 
 namespace Rapi.Tests
 {
-    public class RapiSftpTests : RapiSftpBase, IClassFixture<RapiTestHost>
+    // This fixture tests the legacy API.
+    // ReSharper disable once UnusedMember.Global
+    public sealed class RapiSftpTests : RapiSftpTestsBase, IClassFixture<RapiTestHost>
     {
-        public RapiSftpTests(RapiTestHost host, ITestOutputHelper output) : base(host, output, false)
-        {
-        }
+        public RapiSftpTests(RapiTestHost host, ITestOutputHelper output) : base(host, output, false) { }
     }
     
-    public class RapiSftpBackgroundTests : RapiSftpBase, IClassFixture<RapiTestHost>
+    // This fixture tests the operation API.
+    // ReSharper disable once UnusedMember.Global
+    public class RapiSftpBackgroundTests : RapiSftpTestsBase, IClassFixture<RapiTestHost>
     {
-        public RapiSftpBackgroundTests(RapiTestHost host, ITestOutputHelper output) : base(host, output, true)
-        {
-        }
+        public RapiSftpBackgroundTests(RapiTestHost host, ITestOutputHelper output) : base(host, output, true) { }
     }
 
-    
-    public abstract class RapiSftpBase
+    public abstract class RapiSftpTestsBase
     {
         private readonly ITestOutputHelper _output;
         private readonly bool _useBackgroundApi;
         private readonly RapiTestHost _host;
 
-        public RapiSftpBase(RapiTestHost host, ITestOutputHelper output, bool useBackgroundApi)
+        protected RapiSftpTestsBase(RapiTestHost host, ITestOutputHelper output, bool useBackgroundApi)
         {
             _output = output;
             _useBackgroundApi = useBackgroundApi;
             _host = host;
-        }
-
-        async Task DoOperation(IRapiSftpRpc rpc, string from, string to, bool upload)
-        {
-            if (_useBackgroundApi)
-            {
-                var id = Guid.NewGuid().ToString();
-                await (upload
-                    ? rpc.StartUpload(id, from, to, _host.Configuration.Sftp)
-                    : rpc.StartDownload(id, from, to, _host.Configuration.Sftp));
-                while (true)
-                {
-                    var status = await rpc.TryGetStatus(id);
-                    if (status.IsCompleted)
-                    {
-                        if (status.Exception != null)
-                            throw new Exception(status.Exception);
-                        return;
-                    }
-
-                    await Task.Delay(100);
-                }
-            }
-            else
-            {
-                await (upload
-                    ? rpc.Upload(from, to, _host.Configuration.Sftp)
-                    : rpc.Download(from, to, _host.Configuration.Sftp));
-            }
         }
         
         [Fact]
@@ -288,6 +258,34 @@ namespace Rapi.Tests
                 await connection.FileSystem.CreateDirectory(root);
             
             return (connection, root);
+        }
+
+        private async Task DoOperation(IRapiSftpRpc rpc, string from, string to, bool upload)
+        {
+            if (_useBackgroundApi)
+            {
+                var id = Guid.NewGuid().ToString();
+                await (upload
+                    ? rpc.StartUpload(id, from, to, _host.Configuration.Sftp)
+                    : rpc.StartDownload(id, from, to, _host.Configuration.Sftp));
+                
+                while (true)
+                {
+                    var status = await rpc.TryGetStatus(id);
+                    if (status.IsCompleted)
+                    {
+                        if (status.Exception != null)
+                            throw new Exception(status.Exception);
+                        return;
+                    }
+
+                    await Task.Delay(100);
+                }
+            }
+
+            await (upload
+                ? rpc.Upload(from, to, _host.Configuration.Sftp)
+                : rpc.Download(from, to, _host.Configuration.Sftp));
         }
     }
 }

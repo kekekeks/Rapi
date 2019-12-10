@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using Rapi;
@@ -56,6 +57,12 @@ namespace RapiAgent.Rpc
                 Drives = Directory.GetLogicalDrives().ToList(),
                 SpecialFolders = specialDirs
             });
+        }
+
+        public Task Unzip(string archivePath, string toDirectory)
+        {
+            ZipFile.ExtractToDirectory(archivePath, toDirectory);
+            return Task.CompletedTask;
         }
     }
 }

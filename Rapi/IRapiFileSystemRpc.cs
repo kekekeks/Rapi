@@ -14,6 +14,7 @@ namespace Rapi
         Task CreateDirectory(string path);
         Task CleanDirectory(string path);
         Task<RapiFileSystemInfo> GetFileSystemInfo();
+        Task Unzip(string archivePath, string toDirectory);
     }
     
     public class RapiFileSystemInfo

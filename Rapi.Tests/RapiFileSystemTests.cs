@@ -89,6 +89,30 @@ namespace Rapi.Tests
             var after = await connection.FileSystem.GetFiles(directory);
             Assert.Empty(after);
         }
+        
+        [Fact]
+        public async Task ShouldUnzipSimpleZipArchives()
+        {
+            var (connection, root) = await Connect();
+            var toDirectory = connection.Path.Combine(root, "uploading_into");
+            
+            await connection.FileSystem.CreateDirectory(toDirectory);
+            var exists = await connection.FileSystem.DirectoryExists(toDirectory);
+            Assert.True(exists);
+
+            var location = typeof(RapiFileSystemTests).Assembly.Location;
+            var uploadFrom = Path.GetDirectoryName(location);
+            var archiveName = Path.Combine(uploadFrom, "chrome.zip");
+
+            await connection.FileSystem.Unzip(archiveName, toDirectory);
+            var uploadedDirectory = connection.Path.Combine(toDirectory, "chrome-linux");
+            var directory = await connection.FileSystem.DirectoryExists(uploadedDirectory);
+            Assert.True(directory);
+
+            var uploadedFile = connection.Path.Combine(uploadedDirectory, "product_logo_48.png");
+            var file = await connection.FileSystem.FileExists(uploadedFile);
+            Assert.True(file);
+        }
 
         private async Task<(RapiConnection Connection, string Root)> Connect()
         {
