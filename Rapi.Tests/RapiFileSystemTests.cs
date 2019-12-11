@@ -114,6 +114,20 @@ namespace Rapi.Tests
             Assert.True(file);
         }
 
+        [Fact]
+        public async Task ShouldRemoveFiles()
+        {
+            var (connection, root) = await Connect();
+            var file = connection.Path.Combine(root, "delete_file_sample");
+            await connection.FileSystem.WriteFileContents(file, Encoding.UTF8.GetBytes("42"));
+            var before = await connection.FileSystem.FileExists(file);
+            Assert.True(before);
+
+            await connection.FileSystem.DeleteFile(file);
+            var after = await connection.FileSystem.FileExists(file);
+            Assert.False(after);
+        }
+
         private async Task<(RapiConnection Connection, string Root)> Connect()
         {
             var connection = await RapiConnection.Connect(new HttpClientTransport(_host.Address));

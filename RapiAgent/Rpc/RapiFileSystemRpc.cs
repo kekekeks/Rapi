@@ -64,5 +64,11 @@ namespace RapiAgent.Rpc
             ZipFile.ExtractToDirectory(archivePath, toDirectory);
             return Task.CompletedTask;
         }
+
+        public Task DeleteFile(string path)
+        {
+            File.Delete(path);
+            return Task.CompletedTask;
+        }
     }
 }
