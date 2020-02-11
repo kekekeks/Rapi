@@ -10,6 +10,7 @@ namespace Rapi
 
     public class RapiSystemInfo
     {
+        public int RapiVersion { get; set; }
         public RapiPlatformInfo Platform { get; set; }
         public List<RapiNetworkInterfaceInfo> NetworkInterfaces { get; set; }
     }

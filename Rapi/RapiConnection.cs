@@ -13,26 +13,22 @@ namespace Rapi
         public IRapiSystemInfoRpc SystemInfoRpc { get; }
         public IRapiProcesses Processes { get; }
         public IRapiSftpRpc Sftp { get; }
+        public IRapiWebRequestRpc WebRequest { get; }
         public RapiSystemInfo SystemInfo { get; private set; }
         public RapiFileSystemInfo FileSystemInfo { get; private set; }
         public RapiPath Path { get; private set; }
 
-        private class ConstExtractor : ITargetNameExtractor
-        {
-            private readonly string _name;
-
-            public ConstExtractor(string name) => _name = name;
-
-            public string GetTargetName(Type interfaceType) => _name;
-        }
+        internal static CoreRPC.Engine CreateEngine() =>
+            new CoreRPC.Engine(new JsonMethodCallSerializer(true), new DefaultMethodBinder());
         
         private RapiConnection(IClientTransport transport)
         {
-            var engine = new CoreRPC.Engine(new JsonMethodCallSerializer(true), new DefaultMethodBinder());
-            SystemInfoRpc = engine.CreateProxy<IRapiSystemInfoRpc>(transport, new ConstExtractor("SystemInfo"));
-            FileSystem = engine.CreateProxy<IRapiFileSystemRpc>(transport, new ConstExtractor("FileSystem"));
-            Processes = engine.CreateProxy<IRapiProcesses>(transport, new ConstExtractor("Processes"));
-            Sftp = engine.CreateProxy<IRapiSftpRpc>(transport, new ConstExtractor("Sftp"));
+            var engine = CreateEngine();
+            SystemInfoRpc = engine.CreateProxy<IRapiSystemInfoRpc>(transport, new ConstTargetExtractor("SystemInfo"));
+            FileSystem = engine.CreateProxy<IRapiFileSystemRpc>(transport, new ConstTargetExtractor("FileSystem"));
+            Processes = engine.CreateProxy<IRapiProcesses>(transport, new ConstTargetExtractor("Processes"));
+            Sftp = engine.CreateProxy<IRapiSftpRpc>(transport, new ConstTargetExtractor("Sftp"));
+            WebRequest = engine.CreateProxy<IRapiWebRequestRpc>(transport, new ConstTargetExtractor("WebRequest"));
         }
 
         public static async Task<RapiConnection> Connect(IClientTransport transport)
@@ -43,5 +39,14 @@ namespace Rapi
             conn.FileSystemInfo = await conn.FileSystem.GetFileSystemInfo();
             return conn;
         }
+    }
+    
+    class ConstTargetExtractor : ITargetNameExtractor
+    {
+        private readonly string _name;
+
+        public ConstTargetExtractor(string name) => _name = name;
+
+        public string GetTargetName(Type interfaceType) => _name;
     }
 }

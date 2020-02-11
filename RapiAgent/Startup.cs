@@ -32,7 +32,8 @@ namespace RapiAgent
                 ["FileSystem"] = new RapiFileSystemRpc(),
                 ["Processes"] = new RapiProcessesRpc(processFactory),
                 ["SystemInfo"] = new RapiSystemInfoRpc(),
-                ["Sftp"] = new RapiSftpRpc()
+                ["Sftp"] = new RapiSftpRpc(),
+                ["WebRequest"] = new RapiWebRequestRpc()
             }));
         }
     }
