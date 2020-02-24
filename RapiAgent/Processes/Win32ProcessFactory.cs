@@ -36,11 +36,11 @@ namespace RapiAgent.Processes
             var sb = new StringBuilder();
 
             var appName = options.Path;
+            PasteArguments.AppendArgument(sb, appName);
             if (!Path.IsPathRooted(appName))
             {
                 if (appName.Contains(Path.DirectorySeparatorChar) || appName.Contains(Path.AltDirectorySeparatorChar))
                     throw new ArgumentException("Should provide either full exe path or just file name");
-                PasteArguments.AppendArgument(sb, appName);
                 appName = null;
             }
             
