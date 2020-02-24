@@ -1,25 +1,31 @@
 using System.IO;
 using System.Threading.Tasks;
+using Rapi;
 
 namespace RapiAgent.Processes
 {
     internal class ProcessHelper
     {
         public IProcess Process { get; }
+        public ProcessCreationOptions Options { get; }
         public MemoryStream Stdout { get; }
         public MemoryStream Stderr { get; }
         public Task StdoutReader { get; }
         public Task StderrReader { get; }
 
-        public ProcessHelper(IProcess process)
+        public ProcessHelper(IProcess process, ProcessCreationOptions options)
         {
             Process = process;
+            Options = options;
             Stdout = new MemoryStream();
             StdoutReader = Reader(process.StdoutOrMix, Stdout);
             if (process.Stderr == null) return;
                 
             Stderr = new MemoryStream();
             StderrReader = Reader(process.Stderr, Stderr);
+
+            if (options.CloseStdIn)
+                process.StdIn.Dispose();
         }
 
         public async Task<byte[]> GetOutput(bool stderr)

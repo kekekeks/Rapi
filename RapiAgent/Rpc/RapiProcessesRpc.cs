@@ -8,6 +8,7 @@ namespace RapiAgent.Rpc
 {
     internal class RapiProcessesRpc : IRapiProcesses
     {
+        
         private readonly Dictionary<string, ProcessHelper> _processes = new Dictionary<string, ProcessHelper>();
         private readonly IProcessFactory _factory;
 
@@ -19,7 +20,8 @@ namespace RapiAgent.Rpc
             {
                 if(_processes.TryGetValue(id, out var proc))
                     proc.Process.Kill();
-                _processes[id] = new ProcessHelper(_factory.Create(options));
+                _processes[id] = new ProcessHelper(_factory.Create(options), options);
+
             }
             return Task.CompletedTask;
         }
@@ -71,6 +73,16 @@ namespace RapiAgent.Rpc
                 if (_processes.TryGetValue(id, out var proc))
                     return proc.GetOutput(stderr);
             throw new KeyNotFoundException();
+        }
+
+        public Task<ProcessCreationOptions> TryGetCreationOptions(string id)
+        {
+            lock (_processes)
+            {
+                if (_processes.TryGetValue(id, out var proc))
+                    return Task.FromResult(proc.Options);
+                return Task.FromResult((ProcessCreationOptions) null);
+            }
         }
     }
 }

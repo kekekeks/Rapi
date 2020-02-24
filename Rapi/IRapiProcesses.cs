@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Rapi
@@ -11,6 +13,7 @@ namespace Rapi
         Task WriteStdIn(string id, byte[] data);
         Task CloseStdIn(string id);
         Task<byte[]> GetOutput(string id, bool stderr);
+        Task<ProcessCreationOptions> TryGetCreationOptions(string id);
     }
     
     public class ProcessCreationOptions
@@ -20,6 +23,8 @@ namespace Rapi
         public string WorkingDirectory { get; set; }
         public string[] Arguments { get; set; }
         public bool MergeStderr { get; set; }
+        public bool CloseStdIn { get; set; }
+        public string DataToken { get; set; }
 
         public ProcessCreationOptions() { }
 
@@ -28,5 +33,26 @@ namespace Rapi
             Path = path;
             Arguments = arguments;
         }
+
+        static bool CompareDic<TKey, TValue>(Dictionary<TKey, TValue> left, Dictionary<TKey, TValue> right) where TValue : IEquatable<TValue>
+        {
+            if (left == null || right == null)
+                return right == left;
+            if (left.Count != right.Count)
+                return false;
+            foreach(var k in left)
+                if (!k.Value.Equals(right[k.Key]))
+                    return false;
+            return true;
+        }
+        
+        public bool AreEqual(ProcessCreationOptions other) =>
+            Path == other.Path
+            && WorkingDirectory == other.WorkingDirectory
+            && Arguments.SequenceEqual(other.Arguments)
+            && MergeStderr == other.MergeStderr
+            && CloseStdIn == other.CloseStdIn
+            && DataToken == other.DataToken
+            && CompareDic(Environment, other.Environment);
     }
 }
