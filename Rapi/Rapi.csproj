@@ -4,7 +4,7 @@
         <TargetFramework>netstandard2.0</TargetFramework>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="CoreRPC" Version="0.4.4" />
+        <PackageReference Include="CoreRPC" Version="0.4.7" />
     </ItemGroup>
 
 </Project>
