@@ -73,7 +73,7 @@ namespace RapiAgent.Rpc
 
         public async Task CopyFile(string from, string to)
         {
-            using (var filestream = new FileStream(from, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var filestream = new FileStream(from, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
             using (var destFilestream = File.Create(to))
             {
                 await filestream.CopyToAsync(destFilestream);

@@ -127,5 +127,44 @@ namespace Rapi
         private bool IsDirectorySeparator(char ch) => ch == DirectorySeparatorChar || ch == AltDirectorySeparatorChar;
 
         private static bool IsLatin(char ch) => (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'); 
+
+        private int GetRootLength(ReadOnlySpan<char> path)
+        {
+            return path.Length > 0 && IsDirectorySeparator(path[0]) ? 1 : 0;
+        }
+        
+        public ReadOnlySpan<char> GetPathRoot(ReadOnlySpan<char> path)
+        {
+            if (path.IsEmpty)
+                return ReadOnlySpan<char>.Empty;
+
+            int pathRoot = GetRootLength(path);
+            return pathRoot <= 0 ? ReadOnlySpan<char>.Empty : path.Slice(0, pathRoot);
+        }
+        
+        public string GetFileName(string path)
+        {
+            if (path == null)
+                return null;
+
+            var result = GetFileName(path.AsSpan());
+            return path.Length == result.Length ? path : result.ToString();
+        }
+        
+        private ReadOnlySpan<char> GetFileName(ReadOnlySpan<char> path)
+        {
+            int root = GetPathRoot(path).Length;
+
+            // We don't want to cut off "C:\file.txt:stream" (i.e. should be "file.txt:stream")
+            // but we *do* want "C:Foo" => "Foo". This necessitates checking for the root.
+
+            for (int i = path.Length; --i >= 0;)
+            {
+                if (i < root ||path[i] == DirectorySeparatorChar)
+                    return path.Slice(i + 1, path.Length - i - 1);
+            }
+
+            return path;
+        }
     }
 }
