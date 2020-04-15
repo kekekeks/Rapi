@@ -16,6 +16,7 @@ namespace Rapi
         Task<RapiFileSystemInfo> GetFileSystemInfo();
         Task Unzip(string archivePath, string toDirectory);
         Task DeleteFile(string path);
+        Task CopyFile(string from, string to);
     }
     
     public class RapiFileSystemInfo

@@ -21,7 +21,7 @@ namespace RapiAgent.Rpc
 
             return Task.FromResult(new RapiSystemInfo
             {
-                RapiVersion = 4,
+                RapiVersion = 5,
                 Platform = plat,
                 NetworkInterfaces = NetworkInterface.GetAllNetworkInterfaces().Select(ni =>
                     new RapiNetworkInterfaceInfo
