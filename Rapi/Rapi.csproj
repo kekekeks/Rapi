@@ -5,7 +5,8 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="CoreRPC" Version="0.4.7" />
-        <PackageReference Include="System.Memory" Version="4.3.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+        <PackageReference Include="System.Memory" Version="4.5.0" />
     </ItemGroup>
 
 </Project>
