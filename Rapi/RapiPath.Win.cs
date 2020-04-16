@@ -10,7 +10,7 @@ namespace Rapi
             if (IsEffectivelyEmpty(path.AsSpan()))
                 return null;
 
-            ReadOnlySpan<char> result = GetPathRoot(path.AsSpan());
+            ReadOnlySpan<char> result = GetPathRootWin(path.AsSpan());
             if (path.Length == result.Length)
                 return NormalizeDirectorySeparatorsWin(path);
 
