@@ -4,6 +4,7 @@ using CoreRPC.Binding.Default;
 using CoreRPC.Routing;
 using CoreRPC.Serialization;
 using CoreRPC.Transport;
+using CoreRPC.Transport.Http;
 
 namespace Rapi
 {
@@ -33,6 +34,15 @@ namespace Rapi
             WebRequest = engine.CreateProxy<IRapiWebRequestRpc>(transport, new ConstTargetExtractor("WebRequest"));
         }
 
+        public static Task<RapiConnection> Connect(string url)
+        {
+            url = url.TrimEnd('/');
+            if (url.EndsWith("/rpc"))
+                url = url.Substring(0, url.Length - 4);
+            url = url.TrimEnd('/');
+            return Connect(new HttpClientTransport(url + "/rpc"), new RapiFileStream(url));
+        }
+        
         public static async Task<RapiConnection> Connect(IClientTransport transport, IRapiFileStream rapiFileStream)
         {
             var conn = new RapiConnection(transport, rapiFileStream);
