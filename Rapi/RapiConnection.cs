@@ -14,6 +14,7 @@ namespace Rapi
         public IRapiProcesses Processes { get; }
         public IRapiSftpRpc Sftp { get; }
         public IRapiWebRequestRpc WebRequest { get; }
+        public IRapiFileStream RapiFileStream { get; }
         public RapiSystemInfo SystemInfo { get; private set; }
         public RapiFileSystemInfo FileSystemInfo { get; private set; }
         public RapiPath Path { get; private set; }
@@ -21,8 +22,9 @@ namespace Rapi
         internal static CoreRPC.Engine CreateEngine() =>
             new CoreRPC.Engine(new JsonMethodCallSerializer(true), new DefaultMethodBinder());
         
-        private RapiConnection(IClientTransport transport)
+        private RapiConnection(IClientTransport transport, IRapiFileStream rapiFileStream)
         {
+            RapiFileStream = rapiFileStream;
             var engine = CreateEngine();
             SystemInfoRpc = engine.CreateProxy<IRapiSystemInfoRpc>(transport, new ConstTargetExtractor("SystemInfo"));
             FileSystem = engine.CreateProxy<IRapiFileSystemRpc>(transport, new ConstTargetExtractor("FileSystem"));
@@ -31,9 +33,9 @@ namespace Rapi
             WebRequest = engine.CreateProxy<IRapiWebRequestRpc>(transport, new ConstTargetExtractor("WebRequest"));
         }
 
-        public static async Task<RapiConnection> Connect(IClientTransport transport)
+        public static async Task<RapiConnection> Connect(IClientTransport transport, IRapiFileStream rapiFileStream)
         {
-            var conn = new RapiConnection(transport);
+            var conn = new RapiConnection(transport, rapiFileStream);
             conn.SystemInfo = await conn.SystemInfoRpc.GetSystemInfo();
             conn.Path = new RapiPath(conn.SystemInfo.Platform);
             conn.FileSystemInfo = await conn.FileSystem.GetFileSystemInfo();
