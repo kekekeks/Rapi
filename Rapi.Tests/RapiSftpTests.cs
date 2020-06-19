@@ -251,7 +251,7 @@ namespace Rapi.Tests
         
         private async Task<(RapiConnection Connection, string Root)> Connect()
         {
-            var connection = await RapiConnection.Connect(new HttpClientTransport(_host.Address));
+            var connection = await RapiConnection.Connect(_host.Address);
             var root = connection.Path.Combine(connection.FileSystemInfo.TempDirectory, _host.DirectoryName);
             
             if (!await connection.FileSystem.DirectoryExists(root))

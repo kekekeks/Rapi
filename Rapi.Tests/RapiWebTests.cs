@@ -16,7 +16,7 @@ namespace Rapi.Tests
         {
             var proxy = new CoreRPCOverRapiTransport(new HttpClientTransport(_host.Address), _host.Address,
                 new Dictionary<string, string>());
-            var conn = RapiConnection.Connect(proxy).Result;
+            var conn = RapiConnection.Connect(proxy, null).Result;
             Assert.Equal(RuntimeInformation.IsOSPlatform(OSPlatform.Linux), conn.SystemInfo.Platform.IsLinux);
             Assert.Equal(RuntimeInformation.IsOSPlatform(OSPlatform.Windows), conn.SystemInfo.Platform.IsWindows);
             Assert.Equal(RuntimeInformation.IsOSPlatform(OSPlatform.OSX), conn.SystemInfo.Platform.IsOSX);
