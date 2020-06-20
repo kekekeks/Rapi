@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Rapi.Mocks
@@ -74,6 +75,14 @@ namespace Rapi.Mocks
                 if (_processes.TryGetValue(id, out var p))
                     return p.Options;
             return null;
+        }
+
+        public Dictionary<string, RapiProcessMock> GetProcesses()
+        {
+            lock (_processes)
+            {
+                return _processes.ToDictionary(x => x.Key, x => x.Value);
+            }
         }
         
         
