@@ -172,8 +172,8 @@ namespace RapiAgent.Processes
             IntPtr lpThreadAttributes,
             bool                  bInheritHandles,
             ProcessCreationFlags dwCreationFlags,
-            string                lpEnvironment,
-            string                lpCurrentDirectory,
+            IntPtr                lpEnvironment,
+            string               lpCurrentDirectory,
             STARTUPINFOW*        lpStartupInfo,
             PROCESS_INFORMATION* lpProcessInformation
         );
