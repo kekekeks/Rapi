@@ -15,7 +15,10 @@ namespace RapiAgent
 {
     public class Startup
     {
-        public void ConfigureServices(IServiceCollection services) { }
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddMvc();
+        }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
@@ -35,6 +38,8 @@ namespace RapiAgent
                 ["Sftp"] = new RapiSftpRpc(),
                 ["WebRequest"] = new RapiWebRequestRpc()
             }));
+
+            app.UseMvc();
         }
     }
 

@@ -15,7 +15,7 @@ namespace Rapi.Tests
         [Fact]
         public async Task ShouldFetchBasicSystemInfo()
         {
-            var connection = await RapiConnection.Connect(new HttpClientTransport(_host.Address));
+            var connection = await RapiConnection.Connect(_host.Address);
             Assert.Equal(Path.GetTempPath(), connection.FileSystemInfo.TempDirectory);
             Assert.Equal(DriveInfo.GetDrives().Length, connection.FileSystemInfo.Drives.Count);
             

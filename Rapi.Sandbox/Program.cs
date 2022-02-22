@@ -10,7 +10,7 @@ namespace Rapi.Sandbox
     {
         public static async Task Main(string[] args)
         {
-            var conn = await RapiConnection.Connect(new HttpClientTransport(args[0]));
+            var conn = await RapiConnection.Connect(args[0]);
             Console.WriteLine(JsonConvert.SerializeObject(conn.SystemInfo));
             Console.WriteLine(JsonConvert.SerializeObject(await conn.FileSystem.GetFileSystemInfo())); 
             

@@ -20,7 +20,7 @@ namespace Rapi.Tests
             var directory = Path.GetDirectoryName(assembly);
             var actual = Directory.GetFiles(directory);
             
-            var connection = await RapiConnection.Connect(new HttpClientTransport(_host.Address));
+            var connection = await RapiConnection.Connect(_host.Address);
             var received = await connection.FileSystem.GetFiles(directory);
             
             Assert.True(actual.All(file => received.Contains(file)));
@@ -130,7 +130,7 @@ namespace Rapi.Tests
 
         private async Task<(RapiConnection Connection, string Root)> Connect()
         {
-            var connection = await RapiConnection.Connect(new HttpClientTransport(_host.Address));
+            var connection = await RapiConnection.Connect(_host.Address);
             var root = connection.Path.Combine(connection.FileSystemInfo.TempDirectory, _host.DirectoryName);
             
             if (!await connection.FileSystem.DirectoryExists(root))

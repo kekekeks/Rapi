@@ -88,7 +88,7 @@ namespace Rapi.Tests
 
         private async Task<(RapiConnection Connection, string Shell, string[] Args, string Err)> Connect()
         {
-            var connection = await RapiConnection.Connect(new HttpClientTransport(_host.Address));
+            var connection = await RapiConnection.Connect(_host.Address);
             var windows = connection.SystemInfo.Platform.IsWindows;
             var shell = windows ? "cmd.exe" : "bash";
             var args = windows ? new[] { "/D" } : null;

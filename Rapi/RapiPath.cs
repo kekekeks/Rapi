@@ -3,13 +3,14 @@ using System.Text;
 
 namespace Rapi
 {
-    public class RapiPath
+    public partial class RapiPath
     {
         private readonly bool _isUnix;
         
         public char[] InvalidFileNameChars { get; }
         public char[] InvalidPathChars { get; }
         public char DirectorySeparatorChar { get; }
+        public string DirectorySeparatorCharAsString { get; }
         public char AltDirectorySeparatorChar { get; }
         
         public RapiPath(RapiPlatformInfo platformInfo)
@@ -19,6 +20,7 @@ namespace Rapi
                 InvalidFileNameChars = new[] {'\0', '/'};
                 InvalidPathChars = new[] {'\0'};
                 DirectorySeparatorChar = AltDirectorySeparatorChar = '/';
+                DirectorySeparatorCharAsString = DirectorySeparatorChar.ToString();
                 _isUnix = true;
             }
             else
@@ -43,10 +45,20 @@ namespace Rapi
                 };
                 DirectorySeparatorChar = '\\';
                 AltDirectorySeparatorChar = '/';
+                DirectorySeparatorCharAsString = DirectorySeparatorChar.ToString();
             }
         }
         
         public bool IsPathRooted(string path)
+        {
+            if (_isUnix)
+                return path.Length > 0 && path[0] == DirectorySeparatorChar;
+            int length = path.Length;
+            return length >= 1 && IsDirectorySeparator(path[0]) || 
+                   length >= 2 && IsLatin(path[0]) && path[1] == ':';
+        }
+        
+        public bool IsPathRooted(ReadOnlySpan<char> path)
         {
             if (_isUnix)
                 return path.Length > 0 && path[0] == DirectorySeparatorChar;
@@ -127,5 +139,38 @@ namespace Rapi
         private bool IsDirectorySeparator(char ch) => ch == DirectorySeparatorChar || ch == AltDirectorySeparatorChar;
 
         private static bool IsLatin(char ch) => (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'); 
+
+        public  string GetPathRoot(string path) => _isUnix ? GetPathRootUnix(path) : GetPathRootWin(path);
+
+        public ReadOnlySpan<char> GetPathRoot(ReadOnlySpan<char> path) 
+            => _isUnix ? GetPathRootUnix(path) : GetPathRootWin(path);
+
+        bool IsEffectivelyEmpty(ReadOnlySpan<char> path) 
+            => _isUnix?IsEffectivelyEmptyUnix(path):IsEffectivelyEmptyWin(path);
+
+        public string GetFileName(string path)
+        {
+            if (path == null)
+                return null;
+
+            var result = GetFileName(path.AsSpan());
+            return path.Length == result.Length ? path : result.ToString();
+        }
+        
+        private ReadOnlySpan<char> GetFileName(ReadOnlySpan<char> path)
+        {
+            int root = GetPathRoot(path).Length;
+
+            // We don't want to cut off "C:\file.txt:stream" (i.e. should be "file.txt:stream")
+            // but we *do* want "C:Foo" => "Foo". This necessitates checking for the root.
+
+            for (int i = path.Length; --i >= 0;)
+            {
+                if (i < root ||path[i] == DirectorySeparatorChar)
+                    return path.Slice(i + 1, path.Length - i - 1);
+            }
+
+            return path;
+        }
     }
 }
