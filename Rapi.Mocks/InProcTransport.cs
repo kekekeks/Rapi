@@ -1,3 +1,4 @@
+using System.IO;
 using System.Threading.Tasks;
 using CoreRPC.Transport;
 
@@ -14,26 +15,26 @@ namespace Rapi.Mocks
 
         class Request : IRequest
         {
-            private TaskCompletionSource<byte[]> _tcs = new TaskCompletionSource<byte[]>();
+            private TaskCompletionSource<Stream> _tcs = new TaskCompletionSource<Stream>();
 
-            public Request(byte[] data)
+            public Request(Stream data)
             {
                 Data = data;
             }
 
-            public Task RespondAsync(byte[] data)
+            public Task RespondAsync(Stream data)
             {
                 _tcs.TrySetResult(data);
                 return Task.CompletedTask;
                     
             }
 
-            public byte[] Data { get; }
+            public Stream Data { get; }
             public object Context { get; }
-            public Task<byte[]> Finished => _tcs.Task;
+            public Task<Stream> Finished => _tcs.Task;
         }
             
-        public Task<byte[]> SendMessageAsync(byte[] message)
+        public Task<Stream> SendMessageAsync(Stream message)
         {
             return Task.Run(async () =>
             {
