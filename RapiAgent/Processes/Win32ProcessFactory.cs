@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.IO.Pipes;
@@ -66,10 +67,10 @@ namespace RapiAgent.Processes
                 var sysEnv = System.Environment.GetEnvironmentVariables();
                 var env = sysEnv.Keys.Cast<string>().ToDictionary(x => x, x => sysEnv[x]);
                 foreach (var kp in options.Environment)
+                {
                     env[kp.Key] = kp.Value;
-                envString = string.Join('\0', env.Select(kp => $"{kp.Key}={kp.Value}"))
-                            + "\0\0\0";
-
+                }
+                envString = string.Join('\0', env.Select(x => $"{x.Key}={x.Value}")) + "\0";
             }
             
             if (!CreateProcessW(appName, sb.ToString(), IntPtr.Zero, IntPtr.Zero, true,
@@ -78,7 +79,7 @@ namespace RapiAgent.Processes
                 | ProcessCreationFlags.DETACHED_PROCESS
                 | ProcessCreationFlags.CREATE_NEW_PROCESS_GROUP
                 | ProcessCreationFlags.DETACHED_PROCESS,
-                envString, options.WorkingDirectory, &startInfo, &procInfo))
+                Marshal.StringToHGlobalAnsi(envString), options.WorkingDirectory, &startInfo, &procInfo))
                 throw new Win32Exception();
             
             var hProc = new ProcessHandle(procInfo.hProcess);
