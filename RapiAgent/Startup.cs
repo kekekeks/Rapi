@@ -17,7 +17,8 @@ namespace RapiAgent
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddControllers();
+            services.AddRouting();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -28,7 +29,7 @@ namespace RapiAgent
                     : new UnixProcessFactory();
             
             app.UseCoreRpc("/rpc", new Engine(
-                new JsonMethodCallSerializer(true),
+                new JsonMethodCallSerializer(),
                 new DefaultMethodBinder())
                 .CreateRequestHandler(new DictionaryTargetSelector
             {
@@ -39,7 +40,11 @@ namespace RapiAgent
                 ["WebRequest"] = new RapiWebRequestRpc()
             }));
 
-            app.UseMvc();
+            app.UseRouting();
+            app.UseEndpoints(c =>
+            {
+                c.MapControllers();
+            });
         }
     }
 

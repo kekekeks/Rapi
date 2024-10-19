@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using CoreRPC.Transport;
@@ -32,8 +33,9 @@ namespace Rapi
         }
         
         
-        public async Task<byte[]> SendMessageAsync(byte[] message)
+        public async Task<Stream> SendMessageAsync(Stream message)
         {
+            
             var resp = await _proxy.SendWebRequest(new RapiWebRequest
             {
                 Body = message,
@@ -46,6 +48,5 @@ namespace Rapi
                 throw new WebException("Server returned " + resp.Code);
             return resp.Data;
         }
-        
     }
 }

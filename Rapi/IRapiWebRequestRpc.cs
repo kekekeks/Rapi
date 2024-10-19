@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -13,7 +14,7 @@ namespace Rapi
     {
         public string Uri { get; set; }
         public string Method { get; set; }
-        public byte[] Body { get; set; }
+        public Stream Body { get; set; }
         public int Timeout { get; set; }
         public Dictionary<string, string> Headers { get; set; }
     }
@@ -22,6 +23,6 @@ namespace Rapi
     {
         public int Code { get; set; }
         public Dictionary<string, string> Headers { get; set; }
-        public byte[] Data { get; set; }
+        public Stream Data { get; set; }
     }
 }

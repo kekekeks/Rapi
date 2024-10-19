@@ -2,12 +2,11 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>netcoreapp2.2</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Rapi.Tests\Rapi.Tests.csproj" />
       <ProjectReference Include="..\Rapi\Rapi.csproj" />
     </ItemGroup>
 

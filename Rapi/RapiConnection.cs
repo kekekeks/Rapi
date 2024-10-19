@@ -20,8 +20,8 @@ namespace Rapi
         public RapiFileSystemInfo FileSystemInfo { get; private set; }
         public RapiPath Path { get; private set; }
 
-        internal static CoreRPC.Engine CreateEngine() =>
-            new CoreRPC.Engine(new JsonMethodCallSerializer(true), new DefaultMethodBinder());
+        internal static CoreRPC.Engine CreateEngine() => 
+            new(new JsonMethodCallSerializer(), new DefaultMethodBinder());
         
         private RapiConnection(IClientTransport transport, IRapiFileStream rapiFileStream)
         {

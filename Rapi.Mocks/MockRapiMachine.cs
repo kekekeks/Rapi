@@ -24,7 +24,7 @@ namespace Rapi.Mocks
             FileStream = FileSystem;
             
             var engine = new Engine(
-                    new JsonMethodCallSerializer(true),
+                    new JsonMethodCallSerializer(),
                     new DefaultMethodBinder())
                 .CreateRequestHandler(new DictionaryTargetSelector
                 {
