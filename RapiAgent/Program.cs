@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.WindowsServices;
+﻿using Microsoft.AspNetCore.Hosting;
 
 namespace RapiAgent
 {
@@ -13,9 +11,7 @@ namespace RapiAgent
                 .UseStartup<Startup>()
                 .UseUrls(args[0])
                 .Build();
-            if (args.Contains("--service")) 
-                host.RunAsService();
-            else
+            
                 host.Run();
         }
     }

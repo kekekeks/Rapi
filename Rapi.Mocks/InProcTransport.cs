@@ -1,8 +1,30 @@
+using System.IO;
 using System.Threading.Tasks;
 using CoreRPC.Transport;
 
 namespace Rapi.Mocks
 {
+    class Request : IRequest
+    {
+        private TaskCompletionSource<Stream> _tcs = new();
+
+        public Request(Stream data)
+        {
+            Data = data;
+        }
+
+        public Task RespondAsync(Stream data)
+        {
+            _tcs.TrySetResult(data);
+            return Task.CompletedTask;
+        }
+
+        public Stream Data { get; }
+        public object Context { get; }
+        public Task<Stream> Finished => _tcs.Task;
+    }
+    
+    
     class InProcTransport : IClientTransport
     {
         private readonly IRequestHandler _handler;
@@ -12,35 +34,11 @@ namespace Rapi.Mocks
             _handler = handler;
         }
 
-        class Request : IRequest
+        public async Task<Stream> SendMessageAsync(Stream message)
         {
-            private TaskCompletionSource<byte[]> _tcs = new TaskCompletionSource<byte[]>();
-
-            public Request(byte[] data)
-            {
-                Data = data;
-            }
-
-            public Task RespondAsync(byte[] data)
-            {
-                _tcs.TrySetResult(data);
-                return Task.CompletedTask;
-                    
-            }
-
-            public byte[] Data { get; }
-            public object Context { get; }
-            public Task<byte[]> Finished => _tcs.Task;
-        }
-            
-        public Task<byte[]> SendMessageAsync(byte[] message)
-        {
-            return Task.Run(async () =>
-            {
-                var req = new Request(message);
-                await _handler.HandleRequest(req);
-                return await req.Finished;
-            });
+            var req = new Request(message);
+            await _handler.HandleRequest(req);
+            return await req.Finished;
         }
     }
 }

@@ -28,7 +28,7 @@ namespace RapiAgent
                     : new UnixProcessFactory();
             
             app.UseCoreRpc("/rpc", new Engine(
-                new JsonMethodCallSerializer(true),
+                new JsonMethodCallSerializer(),
                 new DefaultMethodBinder())
                 .CreateRequestHandler(new DictionaryTargetSelector
             {
@@ -39,7 +39,10 @@ namespace RapiAgent
                 ["WebRequest"] = new RapiWebRequestRpc()
             }));
 
-            app.UseMvc();
+            app.UseEndpoints(c =>
+            {
+                c.MapControllers();
+            });
         }
     }
 
