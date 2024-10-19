@@ -17,7 +17,8 @@ namespace RapiAgent
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddControllers();
+            services.AddRouting();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -39,6 +40,7 @@ namespace RapiAgent
                 ["WebRequest"] = new RapiWebRequestRpc()
             }));
 
+            app.UseRouting();
             app.UseEndpoints(c =>
             {
                 c.MapControllers();
