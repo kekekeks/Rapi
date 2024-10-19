@@ -21,7 +21,7 @@ namespace RapiAgent
             services.AddRouting();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             var processFactory = RuntimeInformation
                 .IsOSPlatform(OSPlatform.Windows)
