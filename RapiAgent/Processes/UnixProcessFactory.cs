@@ -84,7 +84,7 @@ os._exit(1)
 
             var pythonPaths = new[] {"/usr/bin/python2", "/usr/bin/python3"};
 
-            var pythonPath = pythonPaths.First(File.Exists);
+            var pythonPath = pythonPaths.FirstOrDefault(File.Exists);
             if (pythonPath == null)
                 throw new Exception("Unable to find python for after-fork actions");
 
