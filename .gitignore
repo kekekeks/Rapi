@@ -31,3 +31,5 @@ _ReSharper*/
 packages/
 .idea
 *.local.json
+RapiAgent/out/
+*.tar.gz
