@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.IO.Pipes;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -56,17 +58,30 @@ namespace RapiAgent.Processes
                 hStdError = (stderr ?? stdout).ClientSafePipeHandle.DangerousGetHandle()
             };
             
+            
             var procInfo = new PROCESS_INFORMATION();
 
+            string envString = null;
+            if (options.Environment?.Count > 0)
+            {
+                var sysEnv = System.Environment.GetEnvironmentVariables();
+                var env = sysEnv.Keys.Cast<string>().ToDictionary(x => x, x => sysEnv[x]);
+                foreach (var kp in options.Environment)
+                {
+                    env[kp.Key] = kp.Value;
+                }
+                envString = string.Join('\0', env.Select(x => $"{x.Key}={x.Value}")) + "\0";
+            }
+            
             if (!CreateProcessW(appName, sb.ToString(), IntPtr.Zero, IntPtr.Zero, true,
                 ProcessCreationFlags.CREATE_NO_WINDOW
                 | ProcessCreationFlags.CREATE_SUSPENDED
                 | ProcessCreationFlags.DETACHED_PROCESS
                 | ProcessCreationFlags.CREATE_NEW_PROCESS_GROUP
                 | ProcessCreationFlags.DETACHED_PROCESS,
-                null, options.WorkingDirectory, &startInfo, &procInfo))
+                Marshal.StringToHGlobalAnsi(envString), options.WorkingDirectory, &startInfo, &procInfo))
                 throw new Win32Exception();
-
+            
             var hProc = new ProcessHandle(procInfo.hProcess);
 
             if (!AssignProcessToJobObject(job, hProc))

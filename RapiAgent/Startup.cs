@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using CoreRPC;
 using CoreRPC.AspNetCore;
@@ -17,8 +17,7 @@ namespace RapiAgent
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-            services.AddRouting();
+            services.AddMvc(o => o.EnableEndpointRouting = false);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

@@ -35,10 +35,11 @@ namespace Rapi
         
         public async Task<Stream> SendMessageAsync(Stream message)
         {
-            
+            var ms = new MemoryStream();
+            await message.CopyToAsync(ms);
             var resp = await _proxy.SendWebRequest(new RapiWebRequest
             {
-                Body = message,
+                Body = ms.ToArray(),
                 Method = "POST",
                 Uri = _url,
                 Headers = _headers,
@@ -46,7 +47,7 @@ namespace Rapi
             });
             if (resp.Code != 200)
                 throw new WebException("Server returned " + resp.Code);
-            return resp.Data;
+            return new MemoryStream(resp.Data);
         }
     }
 }

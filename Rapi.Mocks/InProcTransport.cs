@@ -36,9 +36,33 @@ namespace Rapi.Mocks
 
         public async Task<Stream> SendMessageAsync(Stream message)
         {
-            var req = new Request(message);
-            await _handler.HandleRequest(req);
-            return await req.Finished;
+            private TaskCompletionSource<Stream> _tcs = new TaskCompletionSource<Stream>();
+
+            public Request(Stream data)
+            {
+                Data = data;
+            }
+
+            public Task RespondAsync(Stream data)
+            {
+                _tcs.TrySetResult(data);
+                return Task.CompletedTask;
+                    
+            }
+
+            public Stream Data { get; }
+            public object Context { get; }
+            public Task<Stream> Finished => _tcs.Task;
+        }
+            
+        public Task<Stream> SendMessageAsync(Stream message)
+        {
+            return Task.Run(async () =>
+            {
+                var req = new Request(message);
+                await _handler.HandleRequest(req);
+                return await req.Finished;
+            });
         }
     }
 }
