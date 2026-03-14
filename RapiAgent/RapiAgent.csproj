@@ -6,6 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="10.0.5" />
         <PackageReference Include="CoreRPC.AspNetCore" Version="0.6.3" />
         <PackageReference Include="SSH.NET" Version="2025.1.0" />
     </ItemGroup>
