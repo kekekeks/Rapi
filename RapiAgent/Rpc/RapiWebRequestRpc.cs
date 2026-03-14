@@ -14,7 +14,7 @@ namespace RapiAgent.Rpc
             {
                 var hreq = new HttpRequestMessage(new HttpMethod(req.Method), req.Uri);
                 if (req.Body != null) 
-                    hreq.Content = new ByteArrayContent(req.Body);
+                    hreq.Content = new StreamContent(req.Body);
                 cl.Timeout = TimeSpan.FromSeconds(req.Timeout);
                 if(req.Headers!=null)
                     foreach (var hdr in req.Headers)
@@ -25,7 +25,7 @@ namespace RapiAgent.Rpc
                 return new RapiWebResponse()
                 {
                     Code = (int) res.StatusCode,
-                    Data = await res.Content.ReadAsByteArrayAsync(),
+                    Data = await res.Content.ReadAsStreamAsync(),
                     Headers = res.Headers.ToDictionary(x => x.Key, x => string.Join(", ", x.Value))
                 };
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text;
 using System.Threading.Tasks;
-using CoreRPC.Transport.Http;
 using Newtonsoft.Json;
 
 namespace Rapi.Sandbox

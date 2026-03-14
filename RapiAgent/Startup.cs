@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using CoreRPC;
 using CoreRPC.AspNetCore;
@@ -20,7 +20,7 @@ namespace RapiAgent
             services.AddMvc(o => o.EnableEndpointRouting = false);
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             var processFactory = RuntimeInformation
                 .IsOSPlatform(OSPlatform.Windows)
@@ -28,7 +28,7 @@ namespace RapiAgent
                     : new UnixProcessFactory();
             
             app.UseCoreRpc("/rpc", new Engine(
-                new JsonMethodCallSerializer(true),
+                new JsonMethodCallSerializer(),
                 new DefaultMethodBinder())
                 .CreateRequestHandler(new DictionaryTargetSelector
             {
@@ -39,7 +39,11 @@ namespace RapiAgent
                 ["WebRequest"] = new RapiWebRequestRpc()
             }));
 
-            app.UseMvc();
+            app.UseRouting();
+            app.UseEndpoints(c =>
+            {
+                c.MapControllers();
+            });
         }
     }
 

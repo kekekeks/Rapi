@@ -1,21 +1,25 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
-        <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+        <TargetFramework>net10.0</TargetFramework>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <AspNetCoreModuleName>AspNetCoreModuleV2</AspNetCoreModuleName>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CoreRPC.AspNetCore" Version="0.5.4" />
-        <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.4" />
-        <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="2.2.0" />
-        <PackageReference Include="SSH.NET" Version="2020.0.1" />
+        <PackageReference Include="CoreRPC.AspNetCore" Version="0.6.3" />
+        <PackageReference Include="SSH.NET" Version="2025.1.0" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Rapi\Rapi.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Properties\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Properties\launchSettings.json" />
     </ItemGroup>
 
 </Project>
