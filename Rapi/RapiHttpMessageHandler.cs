@@ -28,7 +28,7 @@ namespace Rapi
             var res = await _rapiWeb.SendWebRequest(new RapiWebRequest
             {
                 Headers = hdrs,
-                Body = await request.Content.ReadAsByteArrayAsync(),
+                Body = await request.Content.ReadAsStreamAsync(cancellationToken),
                 Method = request.Method.ToString().ToUpperInvariant(),
                 Timeout = 60,
                 Uri = request.RequestUri.ToString()
@@ -38,7 +38,7 @@ namespace Rapi
 
             var resp = new HttpResponseMessage((HttpStatusCode) res.Code)
             {
-                Content = new ByteArrayContent(res.Data)
+                Content = new StreamContent(res.Data)
             };
 
             if (res.Headers != null)
