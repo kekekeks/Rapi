@@ -166,14 +166,14 @@ namespace RapiAgent.Processes
         
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         public static extern bool CreateProcessW(
-            string                lpApplicationName,
-            string                 lpCommandLine,
+            string?               lpApplicationName,
+            string                lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool                  bInheritHandles,
             ProcessCreationFlags dwCreationFlags,
             IntPtr                lpEnvironment,
-            string               lpCurrentDirectory,
+            string?              lpCurrentDirectory,
             STARTUPINFOW*        lpStartupInfo,
             PROCESS_INFORMATION* lpProcessInformation
         );

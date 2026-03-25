@@ -45,7 +45,7 @@ namespace Rapi
             });
             if (resp.Code != 200)
                 throw new WebException("Server returned " + resp.Code);
-            return resp.Data;
+            return resp.Data!;
         }
     }
 }

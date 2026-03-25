@@ -1,28 +1,25 @@
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using CoreRPC.Transport.Http;
-using Xunit;
+using NUnit.Framework;
 
 namespace Rapi.Tests
 {
-    public class RapiSystemInfoTests : IClassFixture<RapiTestHost>
+    [TestFixture]
+    public class RapiSystemInfoTests
     {
-        private readonly RapiTestHost _host;
-
-        public RapiSystemInfoTests(RapiTestHost host) => _host = host;
-
-        [Fact]
+        [Test]
         public async Task ShouldFetchBasicSystemInfo()
         {
-            var connection = await RapiConnection.Connect(_host.Address);
-            Assert.Equal(Path.GetTempPath(), connection.FileSystemInfo.TempDirectory);
-            Assert.Equal(DriveInfo.GetDrives().Length, connection.FileSystemInfo.Drives.Count);
-            
+            var connection = await RapiConnection.Connect(RapiTestHost.Address);
+            Assert.That(connection.FileSystemInfo.TempDirectory, Is.EqualTo(Path.GetTempPath()));
+            Assert.That(connection.FileSystemInfo.Drives!.Count, Is.EqualTo(DriveInfo.GetDrives().Length));
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
                 RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                Assert.True(connection.SystemInfo.Platform.IsUnix);
-            else Assert.False(connection.SystemInfo.Platform.IsUnix);
+                Assert.That(connection.SystemInfo.Platform!.IsUnix, Is.True);
+            else
+                Assert.That(connection.SystemInfo.Platform!.IsUnix, Is.False);
         }
     }
 }

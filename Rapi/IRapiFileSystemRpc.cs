@@ -21,8 +21,8 @@ namespace Rapi
     
     public class RapiFileSystemInfo
     {
-        public string TempDirectory { get; set; }
-        public Dictionary<int, string> SpecialFolders { get; set; }
-        public List<string> Drives { get; set; }
+        public string? TempDirectory { get; set; }
+        public Dictionary<int, string>? SpecialFolders { get; set; }
+        public List<string>? Drives { get; set; }
     }
 }

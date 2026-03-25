@@ -5,7 +5,7 @@ namespace Rapi
 {
     public partial class RapiPath
     {
-        string GetPathRootWin(string path)
+        string? GetPathRootWin(string path)
         {
             if (IsEffectivelyEmpty(path.AsSpan()))
                 return null;

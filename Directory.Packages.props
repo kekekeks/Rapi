@@ -1,0 +1,27 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- CoreRPC -->
+    <PackageVersion Include="CoreRPC" Version="0.6.3" />
+    <PackageVersion Include="CoreRPC.AspNetCore" Version="0.6.3" />
+
+    <!-- ASP.NET Core -->
+    <PackageVersion Include="Microsoft.AspNetCore.WebUtilities" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.0" />
+
+    <!-- JSON -->
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+
+    <!-- SSH -->
+    <PackageVersion Include="SSH.NET" Version="2025.1.0" />
+
+    <!-- Test -->
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="NUnit" Version="4.3.2" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageVersion Include="NUnit.Analyzers" Version="4.9.0" />
+  </ItemGroup>
+</Project>

@@ -39,9 +39,9 @@ namespace Rapi.Mocks
             _separatorChars = unix ? "/".ToCharArray() : "\\/".ToCharArray();
         }
 
-        string TransformKey(string name) => _unix ? name : name?.ToLowerInvariant();
+        string? TransformKey(string? name) => _unix ? name : name?.ToLowerInvariant();
 
-        IMockFileSystemItem FindItem(string path)
+        IMockFileSystemItem? FindItem(string path)
         {
             if (!_path.IsPathRooted(path))
                 return null;
@@ -52,9 +52,9 @@ namespace Rapi.Mocks
             IMockFileSystemItem current = _root;
             while (parts.Count > 0)
             {
-                if (!(current is MockFileSystemDirectory dir))
+                if (current is not MockFileSystemDirectory dir)
                     return null;
-                var name = TransformKey(parts.Dequeue());
+                var name = TransformKey(parts.Dequeue())!;
                 if (!dir.Items.TryGetValue(name, out var next))
                     return null;
                 current = next;
@@ -66,7 +66,7 @@ namespace Rapi.Mocks
         MockFileSystemDirectory GetDir(string path) =>
             FindItem(path) is MockFileSystemDirectory d ? d : throw new DirectoryNotFoundException();
         
-        MockFileSystemDirectory FindParentDir(string path)
+        MockFileSystemDirectory? FindParentDir(string path)
         {
             path = _path.Combine(path);
             if (FindItem(path) is MockFileSystemDirectory d)
@@ -95,7 +95,7 @@ namespace Rapi.Mocks
         
         public async Task<byte[]> ReadFileContents(string file)
         {
-            if (!(FindItem(file) is MockFileSystemFile f))
+            if (FindItem(file) is not MockFileSystemFile f)
                 throw new FileNotFoundException();
             return Clone(f.Data);
         }
@@ -110,20 +110,20 @@ namespace Rapi.Mocks
             else
             {
                 var parent = GetParentDir(file);
-                var item = new MockFileSystemFile(_path.GetFileName(file), data);
-                parent.Items[TransformKey(item.Name)] = item;
+                var item = new MockFileSystemFile(_path.GetFileName(file)!, data);
+                parent.Items[TransformKey(item.Name)!] = item;
             }
         }
 
         public async Task<List<string>> GetFiles(string path)
         {
-            return GetDir(path).Items.OfType<MockFileSystemFile>()
+            return GetDir(path).Items.Values.OfType<MockFileSystemFile>()
                 .Select(x => _path.Combine(path, x.Name)).ToList();
         }
 
         public async Task<List<string>> GetDirectories(string path)
         {
-            return GetDir(path).Items.OfType<MockFileSystemDirectory>()
+            return GetDir(path).Items.Values.OfType<MockFileSystemDirectory>()
                 .Select(x => _path.Combine(path, x.Name)).ToList();
         }
 
@@ -136,7 +136,7 @@ namespace Rapi.Mocks
             while (parts.Count > 0)
             {
                 var name = parts.Dequeue();
-                var transformed = TransformKey(name);
+                var transformed = TransformKey(name)!;
                 if (!current.Items.TryGetValue(transformed, out var item))
                 {
                     var newDir = new MockFileSystemDirectory(name);
@@ -163,7 +163,7 @@ namespace Rapi.Mocks
                     Drives = new List<string> {"/"},
                     TempDirectory = "/tmp"
                 };
-            return new RapiFileSystemInfo()
+            return new RapiFileSystemInfo
             {
                 Drives = new List<string>
                 {
@@ -185,11 +185,12 @@ namespace Rapi.Mocks
 
         public async Task CopyFile(string @from, string to)
         {
-            WriteFileContents(to, ReadFileContents(from).Result);
+            var data = await ReadFileContents(from);
+            await WriteFileContents(to, data);
         }
 
         public void Mount(string path, MockFileSystem other, string otherPath) =>
-            GetParentDir(path).Items[TransformKey(other._root.Name)] = other.GetDir(otherPath);
+            GetParentDir(path)!.Items[TransformKey(other._root.Name)!] = other.GetDir(otherPath);
 
         public async Task WriteFileContents(string file, Stream data)
         {

@@ -12,17 +12,17 @@ namespace Rapi
 
     public class RapiWebRequest
     {
-        public string Uri { get; set; }
-        public string Method { get; set; }
-        public Stream Body { get; set; }
+        public string? Uri { get; set; }
+        public string? Method { get; set; }
+        public Stream? Body { get; set; }
         public int Timeout { get; set; }
-        public Dictionary<string, string> Headers { get; set; }
+        public Dictionary<string, string>? Headers { get; set; }
     }
 
     public class RapiWebResponse
     {
         public int Code { get; set; }
-        public Dictionary<string, string> Headers { get; set; }
-        public Stream Data { get; set; }
+        public Dictionary<string, string>? Headers { get; set; }
+        public Stream? Data { get; set; }
     }
 }

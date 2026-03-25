@@ -140,7 +140,7 @@ namespace Rapi
 
         private static bool IsLatin(char ch) => (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'); 
 
-        public  string GetPathRoot(string path) => _isUnix ? GetPathRootUnix(path) : GetPathRootWin(path);
+        public  string? GetPathRoot(string path) => _isUnix ? GetPathRootUnix(path) : GetPathRootWin(path);
 
         public ReadOnlySpan<char> GetPathRoot(ReadOnlySpan<char> path) 
             => _isUnix ? GetPathRootUnix(path) : GetPathRootWin(path);
@@ -148,7 +148,7 @@ namespace Rapi
         bool IsEffectivelyEmpty(ReadOnlySpan<char> path) 
             => _isUnix?IsEffectivelyEmptyUnix(path):IsEffectivelyEmptyWin(path);
 
-        public string GetFileName(string path)
+        public string? GetFileName(string? path)
         {
             if (path == null)
                 return null;

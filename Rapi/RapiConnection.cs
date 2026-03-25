@@ -15,15 +15,15 @@ namespace Rapi
         public IRapiProcesses Processes { get; }
         public IRapiSftpRpc Sftp { get; }
         public IRapiWebRequestRpc WebRequest { get; }
-        public IRapiFileStream RapiFileStream { get; }
-        public RapiSystemInfo SystemInfo { get; private set; }
-        public RapiFileSystemInfo FileSystemInfo { get; private set; }
-        public RapiPath Path { get; private set; }
+        public IRapiFileStream? RapiFileStream { get; }
+        public RapiSystemInfo SystemInfo { get; private set; } = null!;
+        public RapiFileSystemInfo FileSystemInfo { get; private set; } = null!;
+        public RapiPath Path { get; private set; } = null!;
 
         internal static CoreRPC.Engine CreateEngine() => 
             new(new JsonMethodCallSerializer(), new DefaultMethodBinder());
         
-        private RapiConnection(IClientTransport transport, IRapiFileStream rapiFileStream)
+        private RapiConnection(IClientTransport transport, IRapiFileStream? rapiFileStream)
         {
             RapiFileStream = rapiFileStream;
             var engine = CreateEngine();
@@ -43,11 +43,11 @@ namespace Rapi
             return Connect(new HttpClientTransport(url + "/rpc"), new RapiFileStream(url));
         }
         
-        public static async Task<RapiConnection> Connect(IClientTransport transport, IRapiFileStream rapiFileStream)
+        public static async Task<RapiConnection> Connect(IClientTransport transport, IRapiFileStream? rapiFileStream)
         {
             var conn = new RapiConnection(transport, rapiFileStream);
             conn.SystemInfo = await conn.SystemInfoRpc.GetSystemInfo();
-            conn.Path = new RapiPath(conn.SystemInfo.Platform);
+            conn.Path = new RapiPath(conn.SystemInfo.Platform!);
             conn.FileSystemInfo = await conn.FileSystem.GetFileSystemInfo();
             return conn;
         }

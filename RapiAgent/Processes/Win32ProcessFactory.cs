@@ -38,10 +38,10 @@ namespace RapiAgent.Processes
             var sb = new StringBuilder();
 
             var appName = options.Path;
-            PasteArguments.AppendArgument(sb, appName);
+            PasteArguments.AppendArgument(sb, appName!);
             if (!Path.IsPathRooted(appName))
             {
-                if (appName.Contains(Path.DirectorySeparatorChar) || appName.Contains(Path.AltDirectorySeparatorChar))
+                if (appName!.Contains(Path.DirectorySeparatorChar) || appName.Contains(Path.AltDirectorySeparatorChar))
                     throw new ArgumentException("Should provide either full exe path or just file name");
                 appName = null;
             }
@@ -61,11 +61,11 @@ namespace RapiAgent.Processes
             
             var procInfo = new PROCESS_INFORMATION();
 
-            string envString = null;
+            string? envString = null;
             if (options.Environment?.Count > 0)
             {
                 var sysEnv = System.Environment.GetEnvironmentVariables();
-                var env = sysEnv.Keys.Cast<string>().ToDictionary(x => x, x => sysEnv[x]);
+                var env = sysEnv.Keys.Cast<string>().ToDictionary(x => x, x => (string?)sysEnv[x]);
                 foreach (var kp in options.Environment)
                 {
                     env[kp.Key] = kp.Value;
@@ -114,7 +114,7 @@ namespace RapiAgent.Processes
             private readonly ProcessHandle _proc;
 
             public Win32Process(JobObjectHandle job, ProcessHandle proc, int pid,
-                Stream stdin, Stream stdout, Stream stderr)
+                Stream stdin, Stream stdout, Stream? stderr)
             {
                 _job = job;
                 _proc = proc;
@@ -142,7 +142,7 @@ namespace RapiAgent.Processes
 
             public Stream StdoutOrMix { get; }
 
-            public Stream Stderr { get; }
+            public Stream? Stderr { get; }
 
             public Stream StdIn { get; }
 

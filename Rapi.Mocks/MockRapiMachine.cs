@@ -15,12 +15,12 @@ namespace Rapi.Mocks
         }
         
         public MockFileSystem FileSystem { get; }
-        public RapiSftpMock Sftp { get; }
+        public RapiSftpMock Sftp { get; } = new RapiSftpMock();
         public RapiWebRequestMock WebRequest { get; } = new RapiWebRequestMock();
         public RapiProcessesMock Processes { get; } = new RapiProcessesMock();
         public MockRapiMachine(RapiSystemInfo info)
         {
-            FileSystem = new MockFileSystem(info.Platform.IsUnix);
+            FileSystem = new MockFileSystem(info.Platform!.IsUnix);
             FileStream = FileSystem;
             
             var engine = new Engine(

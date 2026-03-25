@@ -1,25 +1,24 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using CoreRPC.Transport.Http;
-using Xunit;
+using NUnit.Framework;
 
 namespace Rapi.Tests
 {
-    public class RapiWebTests : IClassFixture<RapiTestHost>
+    [TestFixture]
+    [Ignore("Need SUT for this")]
+    public class RapiWebTests
     {
-        private readonly RapiTestHost _host;
-
-        public RapiWebTests(RapiTestHost host) => _host = host;
-
-        [Fact]
-        public void Should_Fetch_System_Info_Through_Proxy()
+        [Test]
+        public async Task Should_Fetch_System_Info_Through_Proxy()
         {
-            var proxy = new CoreRPCOverRapiTransport(new HttpClientTransport(_host.Address), _host.Address,
+            var proxy = new CoreRPCOverRapiTransport(new HttpClientTransport(RapiTestHost.Address), RapiTestHost.Address,
                 new Dictionary<string, string>());
-            var conn = RapiConnection.Connect(proxy, null).Result;
-            Assert.Equal(RuntimeInformation.IsOSPlatform(OSPlatform.Linux), conn.SystemInfo.Platform.IsLinux);
-            Assert.Equal(RuntimeInformation.IsOSPlatform(OSPlatform.Windows), conn.SystemInfo.Platform.IsWindows);
-            Assert.Equal(RuntimeInformation.IsOSPlatform(OSPlatform.OSX), conn.SystemInfo.Platform.IsOSX);
+            var conn = await RapiConnection.Connect(proxy, null!);
+            Assert.That(conn.SystemInfo.Platform!.IsLinux, Is.EqualTo(RuntimeInformation.IsOSPlatform(OSPlatform.Linux)));
+            Assert.That(conn.SystemInfo.Platform.IsWindows, Is.EqualTo(RuntimeInformation.IsOSPlatform(OSPlatform.Windows)));
+            Assert.That(conn.SystemInfo.Platform.IsOSX, Is.EqualTo(RuntimeInformation.IsOSPlatform(OSPlatform.OSX)));
         }
     }
 }

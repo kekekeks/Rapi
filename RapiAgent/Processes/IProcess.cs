@@ -8,7 +8,7 @@ namespace RapiAgent.Processes
     {
         int Id { get; }
         Stream StdoutOrMix { get; }
-        Stream Stderr { get; }
+        Stream? Stderr { get; }
         Stream StdIn { get; }
         void Kill();
         Task<int> ExitCode { get; }

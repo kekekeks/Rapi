@@ -6,21 +6,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="10.0.5" />
-        <PackageReference Include="CoreRPC.AspNetCore" Version="0.6.3" />
-        <PackageReference Include="SSH.NET" Version="2025.1.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" />
+        <PackageReference Include="CoreRPC.AspNetCore" />
+        <PackageReference Include="SSH.NET" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Rapi\Rapi.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Properties\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="Properties\launchSettings.json" />
+        <ProjectReference Include="..\Rapi\Rapi.csproj" />
     </ItemGroup>
 
 </Project>

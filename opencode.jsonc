@@ -1,0 +1,25 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    // Context7: up-to-date library documentation (CoreRPC, SSH.NET, xUnit, etc.)
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    // Sequential Thinking: structured step-by-step reasoning for complex tasks
+    "sequential-thinking": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    // Time: current time and timezone conversion
+    "time": {
+      "type": "local",
+      "command": ["uvx", "mcp-server-time"]
+    },
+    // Microsoft Learn: official .NET, ASP.NET Core, and Azure documentation
+    "microsoft-learn": {
+      "type": "remote",
+      "url": "https://learn.microsoft.com/api/mcp"
+    }
+  }
+}

@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Rapi\Rapi.csproj" />
+        <ProjectReference Include="..\Rapi\Rapi.csproj" />
     </ItemGroup>
 
 </Project>

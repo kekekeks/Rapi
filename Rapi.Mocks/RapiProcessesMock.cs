@@ -61,7 +61,7 @@ namespace Rapi.Mocks
             GetProcess(id).StdInClosed = true;
         }
 
-        public async Task<byte[]> GetOutput(string id, bool stderr)
+        public async Task<byte[]?> GetOutput(string id, bool stderr)
         {
             var p = GetProcess(id);
             var s = stderr ? p.Stderr : p.Stdout;
@@ -69,7 +69,7 @@ namespace Rapi.Mocks
                 return s.ToArray();
         }
 
-        public async Task<ProcessCreationOptions> TryGetCreationOptions(string id)
+        public async Task<ProcessCreationOptions?> TryGetCreationOptions(string id)
         {
             lock(_processes)
                 if (_processes.TryGetValue(id, out var p))

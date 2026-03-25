@@ -11,22 +11,22 @@ namespace Rapi
     public class RapiSystemInfo
     {
         public int RapiVersion { get; set; }
-        public RapiPlatformInfo Platform { get; set; }
-        public List<RapiNetworkInterfaceInfo> NetworkInterfaces { get; set; }
+        public RapiPlatformInfo? Platform { get; set; }
+        public List<RapiNetworkInterfaceInfo>? NetworkInterfaces { get; set; }
     }
 
     public class RapiNetworkAddressV4Info
     {
-        public string Address { get; set; }
-        public string Netmask { get; set; }
+        public string? Address { get; set; }
+        public string? Netmask { get; set; }
     }
     
     public class RapiNetworkInterfaceInfo
     {
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
         // ReSharper disable once InconsistentNaming
-        public List<RapiNetworkAddressV4Info> IPv4Addresses { get; set; }
+        public List<RapiNetworkAddressV4Info>? IPv4Addresses { get; set; }
     }
 
     public class RapiPlatformInfo
