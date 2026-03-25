@@ -20,25 +20,26 @@ namespace Rapi
             CancellationToken cancellationToken)
         {
             var hdrs = new Dictionary<string, string>();
-            foreach (var hdr in request.Content.Headers)
-                hdrs[hdr.Key] = hdr.Value.First();
+            if (request.Content != null)
+                foreach (var hdr in request.Content.Headers)
+                    hdrs[hdr.Key] = hdr.Value.First();
             foreach (var hdr in request.Headers)
                 hdrs[hdr.Key] = hdr.Value.First();
 
             var res = await _rapiWeb.SendWebRequest(new RapiWebRequest
             {
                 Headers = hdrs,
-                Body = await request.Content.ReadAsStreamAsync(cancellationToken),
+                Body = request.Content != null ? await request.Content.ReadAsStreamAsync(cancellationToken) : null,
                 Method = request.Method.ToString().ToUpperInvariant(),
                 Timeout = 60,
-                Uri = request.RequestUri.ToString()
+                Uri = request.RequestUri?.ToString()
             });
 
 
 
             var resp = new HttpResponseMessage((HttpStatusCode) res.Code)
             {
-                Content = new StreamContent(res.Data)
+                Content = new StreamContent(res.Data!)
             };
 
             if (res.Headers != null)

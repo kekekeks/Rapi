@@ -13,13 +13,13 @@ namespace Rapi.Sandbox
             Console.WriteLine(JsonConvert.SerializeObject(conn.SystemInfo));
             Console.WriteLine(JsonConvert.SerializeObject(await conn.FileSystem.GetFileSystemInfo())); 
             
-            foreach (var file in await conn.FileSystem.GetFiles(conn.FileSystemInfo.TempDirectory))
+            foreach (var file in await conn.FileSystem.GetFiles(conn.FileSystemInfo.TempDirectory!))
                 Console.WriteLine(file);
 
-            var tempFilePath = conn.Path.Combine(conn.FileSystemInfo.TempDirectory, "rapitest.txt");
+            var tempFilePath = conn.Path.Combine(conn.FileSystemInfo.TempDirectory!, "rapitest.txt");
             await conn.FileSystem.WriteFileContents(tempFilePath, Encoding.UTF8.GetBytes("Hello world!"));
 
-            var shell = conn.SystemInfo.Platform.IsWindows
+            var shell = conn.SystemInfo.Platform!.IsWindows
                 ? @"cmd.exe"
                 : "bash";
 

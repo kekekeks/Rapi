@@ -13,7 +13,7 @@ namespace Rapi.Mocks
         }
         public Task<RapiSystemInfo> GetSystemInfo()
         {
-            return Task.FromResult(_info.ToObject<RapiSystemInfo>());
+            return Task.FromResult(_info.ToObject<RapiSystemInfo>()!);
         }
     }
 }

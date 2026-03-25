@@ -9,9 +9,9 @@ namespace RapiAgent.Processes
         public IProcess Process { get; }
         public ProcessCreationOptions Options { get; }
         public MemoryStream Stdout { get; }
-        public MemoryStream Stderr { get; }
+        public MemoryStream? Stderr { get; }
         public Task StdoutReader { get; }
-        public Task StderrReader { get; }
+        public Task? StderrReader { get; }
 
         public ProcessHelper(IProcess process, ProcessCreationOptions options)
         {
@@ -28,10 +28,12 @@ namespace RapiAgent.Processes
                 process.StdIn.Dispose();
         }
 
-        public async Task<byte[]> GetOutput(bool stderr)
+        public async Task<byte[]?> GetOutput(bool stderr)
         {
+            if (stderr && Stderr == null)
+                return null;
             var reader = stderr ? StderrReader : StdoutReader;
-            var ms = stderr ? Stderr : Stdout;
+            var ms = stderr ? Stderr! : Stdout;
             if (Process.ExitCode.IsCompleted)
             {
                 if (reader == null)
@@ -46,7 +48,7 @@ namespace RapiAgent.Processes
             var buffer = new byte[1024];
             while (true)
             {
-                var read = await stream.ReadAsync(buffer, 0, buffer.Length);
+                var read = await stream.ReadAsync(buffer);
                 if (read == 0)
                 {
                     stream.Dispose();

@@ -4,7 +4,7 @@ namespace Rapi
 {
     public partial class RapiPath
     {
-        string GetPathRootUnix(string path)
+        string? GetPathRootUnix(string path)
         {
             if (IsEffectivelyEmpty(path.AsSpan())) return null;
 

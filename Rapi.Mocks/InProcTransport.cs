@@ -30,7 +30,7 @@ namespace Rapi.Mocks
             }
 
             public Stream Data { get; }
-            public object Context { get; }
+            public object? Context { get; }
             public Task<Stream> Finished => _tcs.Task;
         }
             

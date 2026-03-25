@@ -12,7 +12,7 @@ namespace RapiAgent.Rpc
         {
             using (var cl = new HttpClient())
             {
-                var hreq = new HttpRequestMessage(new HttpMethod(req.Method), req.Uri);
+                var hreq = new HttpRequestMessage(new HttpMethod(req.Method!), req.Uri);
                 if (req.Body != null) 
                     hreq.Content = new StreamContent(req.Body);
                 cl.Timeout = TimeSpan.FromSeconds(req.Timeout);

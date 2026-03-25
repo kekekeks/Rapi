@@ -10,15 +10,15 @@ namespace Rapi.Mocks
         public class SftpOperation
         {
             public bool IsUpload { get; set; }
-            public string From { get; set; }
-            public string To { get; set; }
+            public string? From { get; set; }
+            public string? To { get; set; }
             internal bool AutoComplete;
             internal TaskCompletionSource<int> Tcs = new TaskCompletionSource<int>();
         }
         
         private Dictionary<string, SftpOperation> _operations = new Dictionary<string, SftpOperation>();
 
-        Task CreateOp(string id, bool upload, string from, string to)
+        Task CreateOp(string? id, bool upload, string from, string to)
         {
             lock (_operations)
             {
@@ -59,7 +59,7 @@ namespace Rapi.Mocks
             return Task.CompletedTask;
         }
 
-        async Task<RapiSftpOperationStatusDto> IRapiSftpRpc.TryGetStatus(string id)
+        async Task<RapiSftpOperationStatusDto?> IRapiSftpRpc.TryGetStatus(string id)
         {
             lock (_operations)
             {

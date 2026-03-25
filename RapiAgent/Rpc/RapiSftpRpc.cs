@@ -19,10 +19,10 @@ namespace RapiAgent.Rpc
         class Operation
         {
             public bool IsUpload;
-            public string From;
-            public string To;
-            public Task Task;
-            public string Login;
+            public string From = string.Empty;
+            public string To = string.Empty;
+            public Task Task = Task.CompletedTask;
+            public string Login = string.Empty;
         }
 
         private static readonly Dictionary<string, Operation> Operations = new Dictionary<string, Operation>(); 
@@ -31,10 +31,10 @@ namespace RapiAgent.Rpc
         {
             from = GetSshNetFriendlyPath(from);
             using (var sftp = new SftpClient(
-                credentials.Host, 
+                credentials.Host!, 
                 credentials.Port,
-                credentials.Login,
-                credentials.Password))
+                credentials.Login!,
+                credentials.Password!))
             {
                 sftp.HostKeyReceived += (sender, args) => args.CanTrust = true;
                 sftp.Connect();
@@ -91,10 +91,10 @@ namespace RapiAgent.Rpc
         {
             to = GetSshNetFriendlyPath(to);
             using (var sftp = new SftpClient(
-                credentials.Host, 
+                credentials.Host!, 
                 credentials.Port, 
-                credentials.Login, 
-                credentials.Password))
+                credentials.Login!, 
+                credentials.Password!))
             {
                 sftp.HostKeyReceived += (sender, args) => args.CanTrust = true;
                 sftp.Connect();
@@ -172,29 +172,29 @@ namespace RapiAgent.Rpc
         
         public Task StartDownload(string id, string from, string to, RapiSftpCredentials credentials)
         {
-            MatchOrStart(id, false, from, to, credentials.Login, () => Download(from, to, credentials));
+            MatchOrStart(id, false, from, to, credentials.Login!, () => Download(from, to, credentials));
             return Task.CompletedTask;
         }
 
         public Task StartUpload(string id, string from, string to, RapiSftpCredentials credentials)
         {
-            MatchOrStart(id, true, from, to, credentials.Login, () => Upload(from, to, credentials));
+            MatchOrStart(id, true, from, to, credentials.Login!, () => Upload(from, to, credentials));
             return Task.CompletedTask;
         }
 
-        public Task<RapiSftpOperationStatusDto> TryGetStatus(string id)
+        public Task<RapiSftpOperationStatusDto?> TryGetStatus(string id)
         {
             lock (Operations)
             {
                 if (!Operations.TryGetValue(id, out var op)) 
-                    return Task.FromResult((RapiSftpOperationStatusDto)null);
+                    return Task.FromResult<RapiSftpOperationStatusDto?>(null);
                 
                 var status = new RapiSftpOperationStatusDto
                 {
                     IsCompleted = op.Task.IsCompleted,
                     Exception = op.Task.Exception?.ToString()
                 };
-                return Task.FromResult(status);
+                return Task.FromResult<RapiSftpOperationStatusDto?>(status);
             }
         }
 

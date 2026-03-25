@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace RapiAgent.Processes
 {
+    #pragma warning disable CS8981 // The type name only contains lower-cased ascii characters
     internal class UnixNativeDelegates
     {
         [DllImport("libdl.so.2", EntryPoint = "dlopen")]
@@ -183,9 +184,9 @@ namespace RapiAgent.Processes
         public static UnixNativeDelegates.waitpid waitpid = UnixNativeDelegates.GetProc<UnixNativeDelegates.waitpid>();
         public static UnixNativeDelegates.kill kill = UnixNativeDelegates.GetProc<UnixNativeDelegates.kill>();
 
-        public static IntPtr StructToPtr(object obj)
+        public static IntPtr StructToPtr<T>(T obj) where T : notnull
         {
-            var ptr = Marshal.AllocHGlobal(Marshal.SizeOf(obj));
+            var ptr = Marshal.AllocHGlobal(Marshal.SizeOf<T>());
             Marshal.StructureToPtr(obj, ptr, false);
             return ptr;
         }

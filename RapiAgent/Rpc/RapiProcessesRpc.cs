@@ -47,7 +47,7 @@ namespace RapiAgent.Rpc
         {
             async Task DoWrite(Stream s)
             {
-                await s.WriteAsync(data, 0, data.Length);
+                await s.WriteAsync(data);
                 await s.FlushAsync();
             }
             lock (_processes)
@@ -67,7 +67,7 @@ namespace RapiAgent.Rpc
             throw new KeyNotFoundException();
         }
 
-        public Task<byte[]> GetOutput(string id, bool stderr)
+        public Task<byte[]?> GetOutput(string id, bool stderr)
         {
             lock (_processes)
                 if (_processes.TryGetValue(id, out var proc))
@@ -75,13 +75,13 @@ namespace RapiAgent.Rpc
             throw new KeyNotFoundException();
         }
 
-        public Task<ProcessCreationOptions> TryGetCreationOptions(string id)
+        public Task<ProcessCreationOptions?> TryGetCreationOptions(string id)
         {
             lock (_processes)
             {
                 if (_processes.TryGetValue(id, out var proc))
-                    return Task.FromResult(proc.Options);
-                return Task.FromResult((ProcessCreationOptions) null);
+                    return Task.FromResult<ProcessCreationOptions?>(proc.Options);
+                return Task.FromResult<ProcessCreationOptions?>(null);
             }
         }
     }

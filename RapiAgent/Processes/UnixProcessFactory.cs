@@ -47,38 +47,36 @@ os._exit(1)
                 ? (int?)null
                 : UnixNative.dup(stderr.ClientSafePipeHandle.DangerousGetHandle().ToInt32());
             
-            int res;
             var fileActions = Marshal.AllocHGlobal(1024);
-            UnixNative.posix_spawn_file_actions_init(fileActions);
-            res = UnixNative.posix_spawn_file_actions_adddup2(fileActions, stdinHandle, 0);
-            res = UnixNative.posix_spawn_file_actions_adddup2(fileActions, stdoutHandle, 1);
-            res = UnixNative.posix_spawn_file_actions_adddup2(fileActions, stderrHandle?? stdoutHandle, 2);
-            res = UnixNative.posix_spawn_file_actions_addclose(fileActions, (int) stdinHandle);
-            res = UnixNative.posix_spawn_file_actions_addclose(fileActions, (int) stdoutHandle);
+            _ = UnixNative.posix_spawn_file_actions_init(fileActions);
+            _ = UnixNative.posix_spawn_file_actions_adddup2(fileActions, stdinHandle, 0);
+            _ = UnixNative.posix_spawn_file_actions_adddup2(fileActions, stdoutHandle, 1);
+            _ = UnixNative.posix_spawn_file_actions_adddup2(fileActions, stderrHandle ?? stdoutHandle, 2);
+            _ = UnixNative.posix_spawn_file_actions_addclose(fileActions, (int) stdinHandle);
+            _ = UnixNative.posix_spawn_file_actions_addclose(fileActions, (int) stdoutHandle);
             if(stderrHandle.HasValue)
-                res = UnixNative.posix_spawn_file_actions_addclose(fileActions, (int) stderrHandle);
+                _ = UnixNative.posix_spawn_file_actions_addclose(fileActions, (int) stderrHandle);
 
             var attributes = Marshal.AllocHGlobal(1024);
-            res = UnixNative.posix_spawnattr_init(attributes);
+            _ = UnixNative.posix_spawnattr_init(attributes);
 
-            var envVars = new List<string>();
+            var envVars = new List<string?>();
 
-            var denv = options.Environment ?? Environment.GetEnvironmentVariables();
+            var denv = options.Environment ?? System.Environment.GetEnvironmentVariables();
 
             foreach (var variable in denv.Keys)
             {
-                if (variable.ToString() != "TERM")
+                if (variable?.ToString() != "TERM")
                 {
-                    envVars.Add($"{variable}={denv[variable]}");
+                    envVars.Add($"{variable}={denv[variable!]}");
                 }
             }
 
-
             envVars.Add(null);
 
-            var xargs = new List<string>();
+            var xargs = new List<string?>();
             xargs.Add(options.Path);
-            if(options.Arguments!=null)
+            if(options.Arguments != null)
                 xargs.AddRange(options.Arguments);
             xargs.Add(null);
 
@@ -95,8 +93,8 @@ os._exit(1)
             File.WriteAllText(tempfile, "#!" + pythonPath + "\n" + PythonScript.Replace("\r", ""));
             UnixNative.chmod(tempfile, 0x1C0);
 
-            res = UnixNative.posix_spawnp(out var pid, tempfile, fileActions, attributes, xargs.ToArray(),
-                envVars.ToArray());
+            _ = UnixNative.posix_spawnp(out var pid, tempfile, fileActions, attributes, xargs.ToArray()!,
+                envVars.ToArray()!);
             UnixNative.close(stdinHandle);
             UnixNative.close(stdoutHandle);
             if (stderrHandle.HasValue)
@@ -113,7 +111,7 @@ os._exit(1)
         {
             private readonly int _pid;
         
-            public UnixProcess(int pid, Stream stdin, Stream stdout, Stream stderr)
+            public UnixProcess(int pid, Stream stdin, Stream stdout, Stream? stderr)
             {
                 _pid = pid;
                 StdIn = stdin;
@@ -137,7 +135,7 @@ os._exit(1)
 
             public int Id => _pid;
             public Stream StdoutOrMix { get; }
-            public Stream Stderr { get; }
+            public Stream? Stderr { get; }
             public Stream StdIn { get; }
             public void Kill()
             {
