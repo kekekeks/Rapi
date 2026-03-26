@@ -169,6 +169,51 @@ Two GitHub Actions workflows live in `.github/workflows/`:
 
 **RapiAgent publish** produces self-contained single-file binaries (`PublishSingleFile=true`, `--self-contained`) for each platform and attaches them to a GitHub Release created by `gh release create`.
 
+## Configuration System
+
+RapiAgent uses a two-layer configuration system defined in `RapiAgent/Config/`.
+
+### Layers
+
+| Layer | Location | Purpose |
+|---|---|---|
+| `*Options` | `Config/Options/` | Raw .NET configuration classes — all properties nullable, deserialized from JSON/ENV |
+| `*Config` | `Config/` | Validated, immutable objects — private constructor, created via static `Convert` |
+
+### How it works
+
+1. At startup, `Program.cs` optionally loads a JSON file via `--config <path>`.
+2. Standard .NET configuration sources remain active (environment variables, etc.). `--config` is layered on top.
+3. `RapiOptions` is bound from `IConfiguration` via `builder.Configuration.Get<RapiOptions>()`.
+4. `RapiConfig.Convert(rapiOptions)` validates all sections and constructs the immutable config. **If validation fails, an `InvalidOperationException` is thrown and the agent exits immediately.**
+5. `RapiConfig` is registered as a singleton in DI — inject it directly; do not use `IOptions<T>` inside the application.
+
+### Command-line flag
+
+```bash
+# Load additional config from a JSON file (optional)
+dotnet run --project RapiAgent -- http://0.0.0.0:5000 --config /etc/rapi/config.json
+```
+
+### Environment variables
+
+Standard .NET double-underscore separator for nested keys:
+
+```bash
+SECTIONNAME__SUBSECTION__KEY=value
+```
+
+### Adding a new configuration section
+
+Use the skill: load `.opencode/skills/add-config-section.md` for a step-by-step checklist.
+
+Short summary:
+1. Create `*Options` class(es) in `RapiAgent/Config/Options/` — all properties nullable.
+2. Create `*Config` class(es) in `RapiAgent/Config/` — private constructor, static `Convert` with validation (`throw InvalidOperationException` on error).
+3. Add a property to `RapiOptions`.
+4. Add a property to `RapiConfig`, wire up `Convert` inside `RapiConfig.Convert`.
+5. Run `dotnet build Rapi.sln` — must produce 0 warnings.
+
 ## MCP Tools Usage
 
 When you need to look up .NET, ASP.NET Core, or other Microsoft technology documentation, use the `microsoft-learn` MCP tools:
