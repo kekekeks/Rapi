@@ -18,6 +18,20 @@ cd ./Rapi.Sandbox
 dotnet run http://0.0.0.0:5000/rpc
 ```
 
+# Use Grpc.Net.Client through Rapi
+
+`RapiConnection.CreateGrpcChannel()` creates a `Grpc.Net.Client` channel whose HTTP transport is executed by the remote `RapiAgent`.
+
+```csharp
+var connection = await RapiConnection.Connect("http://REMOTE:5000/rpc");
+using var channel = connection.CreateGrpcChannel("http://TARGET-GRPC:5001");
+
+var client = new Greeter.GreeterClient(channel);
+var reply = await client.SayHelloAsync(new HelloRequest { Name = "Rapi" });
+```
+
+Current support is limited to **unary** gRPC calls.
+
 # Run tests
 
 Run tests, ideally both on Windows and on Linux.

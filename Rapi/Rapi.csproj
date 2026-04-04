@@ -13,6 +13,7 @@
 
     <ItemGroup>
         <PackageReference Include="CoreRPC" />
+        <PackageReference Include="Grpc.Net.Client" />
         <PackageReference Include="Microsoft.AspNetCore.WebUtilities" />
         <PackageReference Include="Newtonsoft.Json" />
     </ItemGroup>

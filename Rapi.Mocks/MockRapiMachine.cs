@@ -16,6 +16,7 @@ namespace Rapi.Mocks
         
         public MockFileSystem FileSystem { get; }
         public RapiSftpMock Sftp { get; } = new RapiSftpMock();
+        public RapiGrpcClientMock GrpcClient { get; } = new RapiGrpcClientMock();
         public RapiWebRequestMock WebRequest { get; } = new RapiWebRequestMock();
         public RapiProcessesMock Processes { get; } = new RapiProcessesMock();
         public MockRapiMachine(RapiSystemInfo info)
@@ -32,6 +33,7 @@ namespace Rapi.Mocks
                     ["Processes"] = Processes,
                     ["SystemInfo"] = new MockSystemInfo(info),
                     ["Sftp"] = Sftp,
+                    ["GrpcClient"] = GrpcClient,
                     ["WebRequest"] = WebRequest
                 });
             Transport = new InProcTransport(engine);

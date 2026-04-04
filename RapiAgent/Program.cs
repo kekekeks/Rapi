@@ -31,6 +31,7 @@ app.UseCoreRpc("/rpc", new Engine(
         ["Processes"] = new RapiProcessesRpc(processFactory),
         ["SystemInfo"] = new RapiSystemInfoRpc(),
         ["Sftp"] = new RapiSftpRpc(),
+        ["GrpcClient"] = new RapiGrpcClientRpc(),
         ["WebRequest"] = new RapiWebRequestRpc()
     }));
 

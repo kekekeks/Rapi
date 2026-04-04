@@ -9,6 +9,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Google.Protobuf" />
+        <PackageReference Include="Grpc.AspNetCore" />
+        <PackageReference Include="Grpc.Tools">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
         <PackageReference Include="NUnit" />
         <PackageReference Include="NUnit3TestAdapter" />
@@ -21,6 +27,10 @@
     <ItemGroup>
         <ProjectReference Include="..\RapiAgent\RapiAgent.csproj" />
         <ProjectReference Include="..\Rapi\Rapi.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="Protos\test_grpc.proto" GrpcServices="Both" />
     </ItemGroup>
 
     <ItemGroup>
