@@ -15,7 +15,6 @@ namespace Rapi
     
     public class RapiFileStream : IRapiFileStream
     {
-        private static readonly HttpClient httpClient = new HttpClient();
         private string url { get; }
 
         public RapiFileStream(string url)
@@ -28,7 +27,7 @@ namespace Rapi
             using var streamContent = new StreamContent(data);
             var param = new Dictionary<string, string?> { {"path", file} };
             var path = QueryHelpers.AddQueryString($"{url}/filestream/write", param);
-            var res = await httpClient.PostAsync(path, streamContent);
+            using var res = await RapiSharedHttpClient.Instance.PostAsync(path, streamContent);
             if(!res.IsSuccessStatusCode) throw new Exception("Cannot upload file!");
         }
 
@@ -36,7 +35,7 @@ namespace Rapi
         {
             var param = new Dictionary<string, string?> { {"path", file} };
             var path = QueryHelpers.AddQueryString($"{url}/filestream/read", param);
-            return await httpClient.GetStreamAsync(path);
+            return await RapiSharedHttpClient.Instance.GetStreamAsync(path);
         }
     }
 }

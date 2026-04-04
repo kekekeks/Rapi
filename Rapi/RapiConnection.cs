@@ -14,6 +14,7 @@ namespace Rapi
         public IRapiSystemInfoRpc SystemInfoRpc { get; }
         public IRapiProcesses Processes { get; }
         public IRapiSftpRpc Sftp { get; }
+        public IRapiGrpcClient GrpcClient { get; }
         public IRapiWebRequestRpc WebRequest { get; }
         public IRapiFileStream? RapiFileStream { get; }
         public RapiSystemInfo SystemInfo { get; private set; } = null!;
@@ -31,6 +32,7 @@ namespace Rapi
             FileSystem = engine.CreateProxy<IRapiFileSystemRpc>(transport, new ConstTargetExtractor("FileSystem"));
             Processes = engine.CreateProxy<IRapiProcesses>(transport, new ConstTargetExtractor("Processes"));
             Sftp = engine.CreateProxy<IRapiSftpRpc>(transport, new ConstTargetExtractor("Sftp"));
+            GrpcClient = engine.CreateProxy<IRapiGrpcClient>(transport, new ConstTargetExtractor("GrpcClient"));
             WebRequest = engine.CreateProxy<IRapiWebRequestRpc>(transport, new ConstTargetExtractor("WebRequest"));
         }
 
@@ -40,7 +42,7 @@ namespace Rapi
             if (url.EndsWith("/rpc"))
                 url = url.Substring(0, url.Length - 4);
             url = url.TrimEnd('/');
-            return Connect(new HttpClientTransport(url + "/rpc"), new RapiFileStream(url));
+            return Connect(new HttpClientTransport(RapiSharedHttpClient.Instance, url + "/rpc"), new RapiFileStream(url));
         }
         
         public static async Task<RapiConnection> Connect(IClientTransport transport, IRapiFileStream? rapiFileStream)

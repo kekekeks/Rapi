@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option csharp_namespace = "Rapi.Tests.Grpc";
+
+package rapi.tests.grpc;
+
+service TestGrpc {
+  rpc UnaryEcho (EchoRequest) returns (EchoResponse);
+  rpc AlwaysFail (FailureRequest) returns (EchoResponse);
+}
+
+message EchoRequest {
+  string text = 1;
+}
+
+message EchoResponse {
+  string text = 1;
+  string metadata = 2;
+}
+
+message FailureRequest {
+  int32 status_code = 1;
+  string detail = 2;
+}
