@@ -10,17 +10,22 @@ namespace RapiAgent.Rpc
 {
     internal class RapiGrpcClientRpc : IRapiGrpcClient
     {
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public RapiGrpcClientRpc(IHttpClientFactory httpClientFactory)
+        {
+            _httpClientFactory = httpClientFactory;
+        }
+
         public async Task<RapiGrpcResponse> SendGrpcRequest(RapiGrpcRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Uri))
                 throw new ArgumentException("Request URI is required.", nameof(request));
 
-            using var httpClient = new HttpClient
-            {
-                Timeout = request.Timeout > 0
-                    ? TimeSpan.FromSeconds(request.Timeout)
-                    : TimeSpan.FromMinutes(1)
-            };
+            using var httpClient = _httpClientFactory.CreateClient(RapiHttpClientNames.GrpcClient);
+            httpClient.Timeout = request.Timeout > 0
+                ? TimeSpan.FromSeconds(request.Timeout)
+                : TimeSpan.FromMinutes(1);
             using var httpRequest = new HttpRequestMessage(
                 string.IsNullOrWhiteSpace(request.Method) ? HttpMethod.Post : new HttpMethod(request.Method),
                 request.Uri);

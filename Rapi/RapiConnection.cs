@@ -42,7 +42,7 @@ namespace Rapi
             if (url.EndsWith("/rpc"))
                 url = url.Substring(0, url.Length - 4);
             url = url.TrimEnd('/');
-            return Connect(new HttpClientTransport(url + "/rpc"), new RapiFileStream(url));
+            return Connect(new HttpClientTransport(RapiSharedHttpClient.Instance, url + "/rpc"), new RapiFileStream(url));
         }
         
         public static async Task<RapiConnection> Connect(IClientTransport transport, IRapiFileStream? rapiFileStream)

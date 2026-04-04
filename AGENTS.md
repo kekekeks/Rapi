@@ -72,7 +72,7 @@ Large files bypass RPC messages entirely. Use the HTTP endpoints:
 - `GET /filestream/read?path=...` — download from agent
 - `POST /filestream/write?path=...` — upload to agent
 
-Client-side: `RapiFileStream` / `IRapiFileStream` (uses `HttpClient`).
+Client-side: `RapiFileStream` / `IRapiFileStream` (uses a shared long-lived `HttpClient`).
 
 ### Path Handling
 
@@ -83,7 +83,17 @@ Always use `RapiPath` (from `Rapi/RapiPath.cs`) on the client side instead of `S
 - **Unix**: `posix_spawnp` via P/Invoke + a temporary Python shim for `setsid`/`TIOCSCTTY` (`UnixProcessFactory.cs`)
 - **Windows**: `CreateProcessW` + Job Objects with `JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE` (`Win32ProcessFactory.cs`)
 
-The factory is selected at runtime in `Program.cs` based on `RuntimeInformation.IsOSPlatform`.
+The factory is selected at runtime in the shared agent service registration based on `RuntimeInformation.IsOSPlatform`.
+
+### HttpClient lifetime
+
+Follow the Microsoft guideline at <https://learn.microsoft.com/en-us/dotnet/fundamentals/networking/http/httpclient-guidelines#recommended-use>.
+
+- In hosted/server code (for example `RapiAgent`), configure outbound HTTP through `AddHttpClient(...)` / `IHttpClientFactory`. Do **not** create `new HttpClient()` per request, RPC call, or operation.
+- In library code where DI is not available (for example `Rapi/` connection helpers), use a shared long-lived `HttpClient` backed by `SocketsHttpHandler` with `PooledConnectionLifetime` set explicitly.
+- Disable automatic cookie handling unless the feature explicitly requires a cookie container; pooled handlers can otherwise leak cookies between unrelated requests.
+- When a dependency exposes both a `string` overload and an overload that accepts `HttpClient`, prefer the overload that accepts a managed `HttpClient` so lifetime stays under our control.
+- Any new HTTP helper should reuse the existing shared/factory-managed client strategy instead of introducing another ad-hoc client.
 
 ## Code Conventions
 
@@ -129,8 +139,8 @@ Follow this checklist in order:
 1. Define the interface and DTOs in `Rapi/` (e.g., `IRapiExampleRpc.cs`)
 2. Implement it in `RapiAgent/Rpc/` (e.g., `RapiExampleRpc.cs`)
 3. Create a mock in `Rapi.Mocks/` (e.g., `RapiExampleMock.cs`)
-4. Register the implementation in `RapiAgent/Program.cs` (in the `DictionaryTargetSelector` initializer)
-5. Register the mock in `Rapi.Mocks/MockRapiMachine.cs` and `RapiAgent/Startup.cs` (for tests)
+4. Register the implementation in the shared `RapiAgent` service/RPC registration used by both `Program.cs` and `Startup.cs`
+5. Register the mock in `Rapi.Mocks/MockRapiMachine.cs` and keep `RapiAgent/Startup.cs` wired through the shared registration path for tests
 6. Expose it via `RapiConnection.cs` (add a property to the returned connection object)
 7. Add integration tests in `Rapi.Tests/` (e.g., `RapiExampleTests.cs`)
 
