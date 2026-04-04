@@ -179,3 +179,9 @@ When you need to look up .NET, ASP.NET Core, or other Microsoft technology docum
 When you need to look up library docs (CoreRPC, SSH.NET, NUnit, etc.), use the `context7` tools.
 
 When working on complex multi-step tasks (e.g., adding a new service end-to-end), use `sequential-thinking` to plan your approach before writing code.
+
+## Agent Skills
+
+Keep every repository skill in its own file under `.github/skills/<skill-name>/SKILL.md`.
+Do not inline skill definitions in `AGENTS.md`.
+Repository-wide guidance in `AGENTS.md` may reference skills, but the skill content itself must live in the dedicated skill file.
